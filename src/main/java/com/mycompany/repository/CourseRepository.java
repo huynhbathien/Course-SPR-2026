@@ -24,4 +24,3 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     @Query("SELECT c FROM Course c ORDER BY c.createdAt DESC")
     List<Course> findAllByNewest();
 }
-
