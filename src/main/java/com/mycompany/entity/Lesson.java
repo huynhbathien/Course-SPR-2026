@@ -13,10 +13,10 @@ import lombok.Setter;
 @AllArgsConstructor
 public class Lesson extends BaseEntity {
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     private String title;
 
-    @Column(nullable = false, length = 5000,columnDefinition = "TEXT")
+    @Column(nullable = false, length = 5000, columnDefinition = "TEXT")
     private String content;
 
     @ManyToOne

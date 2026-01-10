@@ -18,6 +18,9 @@ services:
       - SPRING_REDIS_PORT=6379
       - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JAVA_OPTS=-Xmx512m -Xms256m
+      - JWT_SECRET_FILE=/run/secrets/jwt_hs512_key
+    secrets:
+      - jwt_hs512_key
     depends_on:
       - mysql
       - redis
@@ -111,4 +114,8 @@ volumes:
 networks:
   course-network:
     driver: bridge
+
+secrets:
+  jwt_hs512_key:
+    external: true
 
