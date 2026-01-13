@@ -3,6 +3,7 @@ package com.mycompany.security;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Base64;
 import java.util.Date;
 
 import javax.crypto.SecretKey;
@@ -10,37 +11,42 @@ import javax.crypto.SecretKey;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
+import jakarta.annotation.PostConstruct;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
-import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
-@AllArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class JwtUtils {
 
     @Value("${jwt.secret-file}")
-    private String jwtSecretFile;
+    String jwtSecretFile;
 
     @Value("${jwt.expiration}")
-    private long jwtExpirationMs;
+    long jwtExpirationMs;
 
     @Value("${jwt.refresh-expiration}")
-    private long jwtRefreshExpirationMs;
+    long jwtRefreshExpirationMs;
 
-    private SecretKey secretKey;
+    SecretKey secretKey;
+
+    @PostConstruct
+    public void initializeSecretKey() {
+        readJwtSecret();
+    }
 
     public SecretKey readJwtSecret() {
         if (secretKey != null) {
             return secretKey;
         }
-        String secretToUse = "default";
+        String secretToUse = null;
+
         if (jwtSecretFile != null && !jwtSecretFile.isEmpty()) {
             try {
                 String fileSecret = Files.readString(Paths.get(jwtSecretFile)).trim();
@@ -48,12 +54,26 @@ public class JwtUtils {
                     secretToUse = fileSecret;
                 }
             } catch (IOException e) {
-                log.error("Error reading JWT secret from file: {}", e.getMessage());
-                throw new RuntimeException("Could not read JWT secret from file", e);
+                log.warn("JWT secret file not found: {}", jwtSecretFile);
             }
-            secretKey = Keys.hmacShaKeyFor(secretToUse.getBytes());
-            log.debug("SecretKey initialized successfully from file,length={}", secretToUse.length());
         }
+
+        // Decode base64 secret and create key
+        if (secretToUse != null && !secretToUse.isEmpty()) {
+            try {
+                byte[] decodedKey = Base64.getDecoder().decode(secretToUse);
+                secretKey = Keys.hmacShaKeyFor(decodedKey);
+                log.info("SecretKey initialized successfully from file, key size={} bits", decodedKey.length * 8);
+            } catch (IllegalArgumentException e) {
+                log.error("Invalid base64 format for JWT secret: {}", e.getMessage());
+                throw new RuntimeException("Invalid JWT secret format", e);
+            }
+        } else {
+            // Generate a new secure key if no secret file provided
+            secretKey = Jwts.SIG.HS512.key().build();
+            log.warn("Generated new secure JWT key (HS512)");
+        }
+
         return secretKey;
     }
 

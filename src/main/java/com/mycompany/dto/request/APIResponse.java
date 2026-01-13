@@ -16,6 +16,7 @@ import lombok.experimental.FieldDefaults;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @Builder
 public class APIResponse<S> {
+
     @Builder.Default
     Integer statusCode = 200;
     String message;

@@ -2,17 +2,17 @@ spring:
   application:
     name: course-application
 
-  # Data Source Configuration
+  # Data Source Configuration - Local MySQL
   datasource:
-    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://localhost:3307/course_db}
-    username: ${SPRING_DATASOURCE_USERNAME:root}
-    password: ${SPRING_DATASOURCE_PASSWORD:root}
+    url: jdbc:mysql://localhost:3306/course_db
+    username: root
+    password: root
     driver-class-name: com.mysql.cj.jdbc.Driver
 
   # JPA Configuration
   jpa:
     hibernate:
-      ddl-auto: ${SPRING_JPA_HIBERNATE_DDL_AUTO:update}
+      ddl-auto: update
     show-sql: false
     properties:
       hibernate:
@@ -23,12 +23,12 @@ spring:
           '[batch_size]': 20
           '[fetch_size]': 50
 
-  # Redis Configuration
+  # Redis Configuration - Local
   data:
     redis:
-      host: ${SPRING_REDIS_HOST:localhost}
-      port: ${SPRING_REDIS_PORT:6379}
-      password: ${SPRING_REDIS_PASSWORD:}
+      host: localhost
+      port: 6379
+      password:
       timeout: 2000ms
       jedis:
         pool:
@@ -37,16 +37,16 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
-  # Kafka Configuration
+  # Kafka Configuration - Local
   kafka:
-    bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    bootstrap-servers: localhost:9092
     producer:
       key-serializer: org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
       acks: all
       retries: 3
     consumer:
-      bootstrap-servers: ${SPRING_KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+      bootstrap-servers: localhost:9092
       group-id: course-group
       key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
@@ -83,9 +83,9 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
             user-name-attribute: email
 
-# JWT Configuration
+# JWT Configuration - Use secret file
 jwt:
-  secret-file: ${JWT_SECRET_FILE:secrets/jwt_hs512_key.txt}
+  secret-file: secrets/jwt_hs512_key.txt
   expiration: 86400000
   refresh-expiration: 604800000
 

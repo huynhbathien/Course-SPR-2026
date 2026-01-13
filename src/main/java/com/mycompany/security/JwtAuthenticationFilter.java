@@ -2,6 +2,7 @@ package com.mycompany.security;
 
 import java.io.IOException;
 
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Component
+@Order(1)
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 @AllArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {

@@ -7,5 +7,6 @@ import org.mapstruct.Mapper;
 
 @Mapper(config = MapStructConfig.class)
 public interface MapStruct {
+
     UserEntity toUserEntity(RegisterRequestDTO userDTO);
 }

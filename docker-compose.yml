@@ -117,5 +117,5 @@ networks:
 
 secrets:
   jwt_hs512_key:
-    external: true
+    file: ./secrets/jwt_hs512_key.txt
 
