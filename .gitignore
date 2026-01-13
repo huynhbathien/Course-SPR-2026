@@ -36,3 +36,15 @@ build/
 
 ### Mac OS ###
 .DS_Store
+
+### log ###
+*.log
+logs/
+
+### secret file ###
+secret/
+
+### others ###
+..gitignore
+
+*.txt
