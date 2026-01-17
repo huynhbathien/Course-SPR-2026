@@ -6,7 +6,7 @@ import com.mycompany.entity.UserEntity;
 import org.mapstruct.Mapper;
 
 @Mapper(config = MapStructConfig.class)
-public interface MapStruct {
+public interface UserMapper {
 
     UserEntity toUserEntity(RegisterRequestDTO userDTO);
 }

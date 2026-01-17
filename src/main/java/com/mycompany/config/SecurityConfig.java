@@ -11,10 +11,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfigurationSource;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.security.web.authentication.logout.LogoutFilter;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.mycompany.security.JwtAuthenticationFilter;
 
@@ -28,15 +27,12 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
-    private final LoggingInterceptor loggingInterceptor;
-
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
             @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource,
-            JwtExceptionHandlerFilter jwtExceptionHandlerFilter, LoggingInterceptor loggingInterceptor) {
+            JwtExceptionHandlerFilter jwtExceptionHandlerFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
         this.jwtExceptionHandlerFilter = jwtExceptionHandlerFilter;
-        this.loggingInterceptor = loggingInterceptor;
     }
 
     @Bean
@@ -59,8 +55,4 @@ public class SecurityConfig implements WebMvcConfigurer {
         return new BCryptPasswordEncoder();
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(loggingInterceptor);
-    }
 }

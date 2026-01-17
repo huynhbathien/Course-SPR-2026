@@ -6,12 +6,13 @@ import org.springframework.stereotype.Service;
 import com.mycompany.dto.request.RegisterRequestDTO;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumAuthError;
-import com.mycompany.mapper.MapStruct;
+import com.mycompany.mapper.UserMapper;
 import com.mycompany.repository.UserRepository;
 import com.mycompany.security.JwtUtils;
 import com.mycompany.service.AuthService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
@@ -24,10 +25,10 @@ public class AuthServiceImpl implements AuthService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtUtils jwtUtils;
-    MapStruct mapStruct;
+    UserMapper mapStruct;
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils,
-            MapStruct mapStruct) {
+            UserMapper mapStruct) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
@@ -47,7 +48,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public String register(RegisterRequestDTO registerRequestDTO) {
+    public String register(@Valid RegisterRequestDTO registerRequestDTO) {
         String username = registerRequestDTO.getUsername();
         if (userRepository.existsByUsername(username)) {
             throw new RuntimeException(EnumAuthError.USER_ALREADY_EXISTS.getMessage());
