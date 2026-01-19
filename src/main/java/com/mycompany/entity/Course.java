@@ -3,14 +3,11 @@ package com.mycompany.entity;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.hibernate.annotations.Fetch;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
@@ -43,9 +40,9 @@ public class Course extends BaseEntity {
             CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Lesson> lessons = new ArrayList<>();
 
-    @ManyToMany(mappedBy = "courses")
-    private List<UserEntity> users = new ArrayList<>();
+    @OneToMany(mappedBy = "course", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<UserCourse> userCourses = new ArrayList<>();
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive;
 }

@@ -1,4 +1,4 @@
-package com.mycompany.mapper;
+package com.mycompany.mapstruct;
 
 import java.util.List;
 
@@ -12,49 +12,50 @@ import com.mycompany.dto.request.CourseRequest;
 import com.mycompany.dto.response.CourseResponse;
 import com.mycompany.entity.Course;
 import com.mycompany.entity.CourseType;
+import com.mycompany.repository.CourseTypeRepository;
 
 @Mapper(config = MapStructConfig.class)
 public abstract class CourseMapper {
 
+    // Sẽ được inject bởi Spring
+    protected CourseTypeRepository courseTypeRepository;
+
     @Mapping(target = "type", source = "type.code")
-    @Mapping(target = "id", source = "id", qualifiedByName = "longToString")
     @Mapping(target = "totalLessons", source = "lessons", qualifiedByName = "lessonsToTotal")
     public abstract CourseResponse toCourseResponse(Course course);
 
+    @Mapping(target = "type", source = "type.code")
+    @Mapping(target = "totalLessons", source = "lessons", qualifiedByName = "lessonsToTotal")
     public abstract List<CourseResponse> toCourseResponseList(List<Course> courses);
 
-    public Course toCourseEntity(CourseRequest courseRequest) {
-        if (courseRequest == null) {
-            return null;
-        }
-        Course course = new Course();
-        course.setTitle(courseRequest.getTitle());
-        course.setLinkImg(courseRequest.getLinkImg());
-        course.setDescription(courseRequest.getDescription());
-        course.setActive(true);
-
-        CourseType courseType = new CourseType();
-        courseType.setCode(courseRequest.getType());
-        course.setType(courseType);
-
-        return course;
-    }
+    @Mapping(target = "type", source = "type", qualifiedByName = "mapStringToCourseType")
+    public abstract Course toCourseEntity(CourseRequest courseRequest);
 
     @Mapping(target = "type", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "updatedAt", ignore = true)
     @Mapping(target = "lessons", ignore = true)
-    @Mapping(target = "users", ignore = true)
+    @Mapping(target = "userCourses", ignore = true)
+    @Mapping(target = "title", source = "title")
+    @Mapping(target = "linkImg", source = "linkImg")
+    @Mapping(target = "description", source = "description")
     public abstract void updateCourseFromRequest(CourseRequest courseRequest, @MappingTarget Course course);
-
-    @Named("longToString")
-    protected String longToString(Long id) {
-        return id != null ? String.valueOf(id) : null;
-    }
 
     @Named("lessonsToTotal")
     protected int lessonsToTotal(java.util.List<com.mycompany.entity.Lesson> lessons) {
         return lessons != null ? lessons.size() : 0;
+    }
+
+    /**
+     * Map String courseType code thành CourseType entity
+     */
+    @Named("mapStringToCourseType")
+    protected CourseType mapStringToCourseType(String courseTypeCode) {
+        if (courseTypeCode == null) {
+            return null;
+        }
+        // Tìm CourseType từ database bằng code
+        return courseTypeRepository.findByCode(courseTypeCode).orElse(null);
     }
 }

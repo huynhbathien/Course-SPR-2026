@@ -18,6 +18,12 @@ public enum EnumSuccess {
     COURSE_UPDATE_SUCCESS(300, "Course updated successfully"),
     COURSE_DELETION_SUCCESS(301, "Course deleted successfully"),
     COURSE_CREATION_SUCCESS(302, "Course created successfully"),
+
+    // Lesson Successes Enums
+    LESSON_CREATION_SUCCESS(310, "Lesson created successfully"),
+    LESSON_UPDATE_SUCCESS(311, "Lesson updated successfully"),
+    LESSON_DELETION_SUCCESS(312, "Lesson deleted successfully"),
+    LESSON_COMPLETION_SUCCESS(313, "Lesson completed successfully"),
     ;
 
     String message;

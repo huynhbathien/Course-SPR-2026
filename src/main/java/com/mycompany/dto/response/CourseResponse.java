@@ -1,14 +1,14 @@
 package com.mycompany.dto.response;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class CourseResponse {
-    private String id;
+    private Long id;
     private String title;
     private String type;
     private String linkImg;

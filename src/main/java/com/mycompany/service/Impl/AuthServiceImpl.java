@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import com.mycompany.dto.request.RegisterRequestDTO;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumAuthError;
-import com.mycompany.mapper.UserMapper;
+import com.mycompany.mapstruct.UserMapper;
 import com.mycompany.repository.UserRepository;
 import com.mycompany.security.JwtUtils;
 import com.mycompany.service.AuthService;
@@ -25,14 +25,14 @@ public class AuthServiceImpl implements AuthService {
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
     JwtUtils jwtUtils;
-    UserMapper mapStruct;
+    UserMapper userMapper;
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils,
-            UserMapper mapStruct) {
+            UserMapper userMapper) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
-        this.mapStruct = mapStruct;
+        this.userMapper = userMapper;
     }
 
     @Override
@@ -56,7 +56,7 @@ public class AuthServiceImpl implements AuthService {
         if (!registerRequestDTO.getPassword().equals(registerRequestDTO.getConfirmPassword())) {
             throw new RuntimeException(EnumAuthError.PASSWORD_MISMATCH.getMessage());
         }
-        UserEntity user = mapStruct.toUserEntity(registerRequestDTO);
+        UserEntity user = userMapper.toUserEntity(registerRequestDTO);
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
         user.setRole("ROLE_USER");
         userRepository.save(user);

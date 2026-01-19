@@ -17,4 +17,9 @@ public interface CourseService {
     public String deleteCourse(Long courseId);
 
     public List<CourseGroupResponse> listAllCourses();
+
+    /**
+     * User mua khóa học - activate course
+     */
+    public CourseResponse purchaseCourse(Long userId, Long courseId);
 }

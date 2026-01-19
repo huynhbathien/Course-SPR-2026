@@ -1,5 +1,6 @@
 package com.mycompany.service.Impl;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -13,11 +14,16 @@ import com.mycompany.dto.request.CourseRequest;
 import com.mycompany.dto.response.CourseGroupResponse;
 import com.mycompany.dto.response.CourseResponse;
 import com.mycompany.entity.Course;
+import com.mycompany.entity.UserCourse;
+import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumError;
-import com.mycompany.mapper.CourseMapper;
+import com.mycompany.mapstruct.CourseMapper;
 import com.mycompany.repository.CourseRepository;
+import com.mycompany.repository.UserCourseRepository;
+import com.mycompany.repository.UserRepository;
 import com.mycompany.service.CourseService;
 
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -26,6 +32,8 @@ import lombok.RequiredArgsConstructor;
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
+    private final UserCourseRepository userCourseRepository;
     private final CourseMapper courseMapper;
 
     @Override
@@ -39,9 +47,9 @@ public class CourseServiceImpl implements CourseService {
         return courseResponse;
     }
 
+    @Transactional
     @Override
     public CourseResponse createCourse(@Valid CourseRequest courseData) {
-
         if (courseRepository.findByTitle(courseData.getTitle()).isPresent()) {
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
@@ -54,6 +62,7 @@ public class CourseServiceImpl implements CourseService {
         return savedCourse;
     }
 
+    @Transactional
     @Override
     public CourseResponse updateCourse(Long courseId, CourseRequest courseData) {
         Course course = courseRepository.findById(courseId)
@@ -80,6 +89,7 @@ public class CourseServiceImpl implements CourseService {
         return courseResponse;
     }
 
+    @Transactional
     @Override
     public String deleteCourse(Long courseId) {
         Course course = courseRepository.findById(courseId)
@@ -108,6 +118,42 @@ public class CourseServiceImpl implements CourseService {
             courseGroupResponses.add(groupResponse);
         }
         return courseGroupResponses;
+    }
+
+    /**
+     * User mua khóa học - tạo record UserCourse với isActive = true
+     */
+    @Transactional
+    public CourseResponse purchaseCourse(Long userId, Long courseId) {
+        UserEntity user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        "User not found with id: " + userId));
+
+        Course course = courseRepository.findById(courseId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+                        EnumError.COURSE_NOT_FOUND.getMessage() + " with id: " + courseId));
+
+        // Kiểm tra user đã mua khóa học này chưa
+        UserCourse userCourse = userCourseRepository.findByUserAndCourse(user, course)
+                .orElse(null);
+
+        if (userCourse == null) {
+            // Tạo mới record UserCourse
+            userCourse = new UserCourse();
+            userCourse.setUser(user);
+            userCourse.setCourse(course);
+            userCourse.setActive(true);
+            userCourse.setPurchaseDate(LocalDateTime.now());
+            userCourse.setProgress(0);
+            userCourseRepository.save(userCourse);
+        } else {
+            // Nếu đã mua rồi, chỉ update isActive = true
+            userCourse.setActive(true);
+            userCourse.setPurchaseDate(LocalDateTime.now());
+            userCourseRepository.save(userCourse);
+        }
+
+        return courseMapper.toCourseResponse(course);
     }
 
 }
