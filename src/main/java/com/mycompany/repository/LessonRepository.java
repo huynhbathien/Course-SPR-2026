@@ -1,5 +1,6 @@
 package com.mycompany.repository;
 
+import com.mycompany.entity.Course;
 import com.mycompany.entity.Lesson;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,6 +19,13 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     List<Lesson> findByCourseId(Long courseId);
 
+    List<Lesson> findByCourse(Course course);
+
+    /**
+     * Tìm tất cả lesson có lessonRequire = lesson này
+     */
+    List<Lesson> findByLessonRequire(Lesson lessonRequire);
+
     @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.createdAt ASC")
     List<Lesson> findByCourseIdOrderByCreatedAt(@Param("courseId") Long courseId);
 
@@ -26,4 +34,3 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
     long countByCourseId(Long courseId);
 }
-

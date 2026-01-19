@@ -1,13 +1,17 @@
 package com.mycompany.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
+import org.checkerframework.checker.units.qual.C;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,15 +30,20 @@ public class Lesson extends BaseEntity {
     @Column(nullable = false, length = 5000, columnDefinition = "TEXT")
     private String content;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "course_id", nullable = false)
     private Course course;
 
-    @ManyToMany
-    @JoinTable(name = "user_lesson", joinColumns = @JoinColumn(name = "lesson_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private List<UserEntity> users;
+    @Column(name = "lesson_require_id")
+    private Long lessonRequireId;
 
-    @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    /**
+     * Tracking tiến độ học của user với lesson này
+     * Thay thế @ManyToMany users để tránh N+1 query
+     */
+    @OneToMany(mappedBy = "lesson", cascade = {
+            CascadeType.PERSIST, CascadeType.MERGE,
+            CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<UserLesson> userLessons = new ArrayList<>();
 
 }
