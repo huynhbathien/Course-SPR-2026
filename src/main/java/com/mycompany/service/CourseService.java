@@ -21,5 +21,5 @@ public interface CourseService {
     /**
      * User mua khóa học - activate course
      */
-    public CourseResponse purchaseCourse(Long userId, Long courseId);
+    // public CourseResponse purchaseCourse(Long userId, Long courseId);
 }
