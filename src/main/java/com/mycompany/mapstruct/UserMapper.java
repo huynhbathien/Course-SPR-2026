@@ -1,12 +1,13 @@
-package com.mycompany.mapper;
+package com.mycompany.mapstruct;
+
+import org.mapstruct.Mapper;
 
 import com.mycompany.config.MapStructConfig;
 import com.mycompany.dto.request.RegisterRequestDTO;
 import com.mycompany.entity.UserEntity;
-import org.mapstruct.Mapper;
 
 @Mapper(config = MapStructConfig.class)
-public interface MapStruct {
+public interface UserMapper {
 
     UserEntity toUserEntity(RegisterRequestDTO userDTO);
 }

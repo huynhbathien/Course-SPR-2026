@@ -7,9 +7,24 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public enum EnumSuccess {
-    SUCCESS(200, "success"),
+
+    SUCCESS(200, "Success"),
+
+    // Authentication Successes Enums
     LOGIN_SUCCESS(201, "Login successful"),
-    REGISTRATION_SUCCESS(202, "Registration successful");
+    REGISTRATION_SUCCESS(202, "Registration successful"),
+
+    // Course Successes Enums
+    COURSE_UPDATE_SUCCESS(300, "Course updated successfully"),
+    COURSE_DELETION_SUCCESS(301, "Course deleted successfully"),
+    COURSE_CREATION_SUCCESS(302, "Course created successfully"),
+
+    // Lesson Successes Enums
+    LESSON_CREATION_SUCCESS(310, "Lesson created successfully"),
+    LESSON_UPDATE_SUCCESS(311, "Lesson updated successfully"),
+    LESSON_DELETION_SUCCESS(312, "Lesson deleted successfully"),
+    LESSON_COMPLETION_SUCCESS(313, "Lesson completed successfully"),
+    ;
 
     String message;
     int code;

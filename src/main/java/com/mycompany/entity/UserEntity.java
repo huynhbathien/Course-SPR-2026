@@ -50,6 +50,9 @@ public class UserEntity extends BaseEntity implements Serializable {
         @JoinTable(name = "user_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
         private List<Course> courses = new ArrayList<>();
 
+        @ManyToMany(mappedBy = "users")
+        private List<Lesson> lessons = new ArrayList<>();
+
         @Column(nullable = false)
         private boolean active = true;
 

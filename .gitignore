@@ -2,6 +2,7 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+src/test/
 
 ### IntelliJ IDEA ###
 .idea/modules.xml
@@ -44,7 +45,11 @@ logs/
 ### secret file ###
 secret/
 
+### test folder ###
+src/test/
+
 ### others ###
 ..gitignore
 
+###  temp files ###
 *.txt
