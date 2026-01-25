@@ -18,6 +18,8 @@ public enum EnumAuthError {
     TOKEN_INVALID(2002, "Invalid token"),
     TOKEN_MISSING(2003, "Token is missing"),
     TOKEN_MALFORMED(2004, "Malformed token"),
+    REFRESH_TOKEN_NOT_FOUND(2005, "Refresh token not found or expired"),
+    REFRESH_TOKEN_EXPIRED(2006, "Refresh token has expired"),
 
     // Authorization errors
     INSUFFICIENT_PERMISSIONS(3001, "Insufficient permissions"),
@@ -39,6 +41,11 @@ public enum EnumAuthError {
     SESSION_EXPIRED(6001, "Session has expired"),
     SESSION_INVALID(6002, "Invalid session"),
     MAX_SESSIONS_EXCEEDED(6003, "Maximum number of sessions exceeded"),
+
+    // OAuth2 errors
+    OAUTH2_FAILURE(7001, "OAuth2 authentication failed"),
+    OAUTH2_INVALID_PROVIDER(7002, "Invalid OAuth2 provider"),
+    OAUTH2_USER_EXTRACTION_FAILED(7003, "Failed to extract user information from OAuth2"),
 
     // General errors
     UNAUTHORIZED(9001, "Unauthorized access"),

@@ -17,11 +17,11 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        '[format_sql]': true
-        '[use_sql_comments]': true
+        "[format_sql]": true
+        "[use_sql_comments]": true
         jdbc:
-          '[batch_size]': 20
-          '[fetch_size]': 50
+          "[batch_size]": 20
+          "[fetch_size]": 50
 
   # Redis Configuration
   data:
@@ -55,7 +55,7 @@ spring:
         spring:
           json:
             trusted:
-              packages: '*'
+              packages: "*"
 
   # Jackson Configuration
   jackson:
@@ -83,11 +83,14 @@ spring:
             user-info-uri: https://www.googleapis.com/oauth2/v2/userinfo
             user-name-attribute: email
 
-# JWT Configuration
+# JWT Configuration (Secret Key)
 jwt:
   secret-file: ${JWT_SECRET_FILE:secrets/jwt_hs512_key.txt}
-  expiration: 86400000
-  refresh-expiration: 604800000
+
+# Token Configuration (Expiration times in seconds)
+token:
+  access-token-expiration: ${TOKEN_ACCESS_EXPIRATION:1800} # 30 minutes (15-30 minutes recommended)
+  refresh-token-expiration: ${TOKEN_REFRESH_EXPIRATION:604800} # 7 days (7-30 days recommended)
 
 # Server Configuration
 server:
@@ -97,14 +100,19 @@ server:
   compression:
     enabled: true
     min-response-size: 1024
+  ssl:
+    key-store: classpath:../../../secrets/keystore.p12
+    key-store-password: changeit
+    key-store-type: PKCS12
+    key-alias: tomcat
 
 # Logging Configuration
 logging:
   level:
     root: INFO
-    '[com.mycompany]': DEBUG
-    '[org.springframework.web]': DEBUG
-    '[org.hibernate]': WARN
+    "[com.mycompany]": DEBUG
+    "[org.springframework.web]": DEBUG
+    "[org.hibernate]": WARN
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -126,4 +134,3 @@ management:
     export:
       prometheus:
         enabled: true
-
