@@ -26,7 +26,7 @@ public interface UserLessonRepository extends JpaRepository<UserLesson, Long> {
     /**
      * Lấy danh sách lesson active của user
      */
-    List<UserLesson> findByUserAndIsActiveTrue(UserEntity user);
+    List<UserLesson> findByUserAndActiveTrue(UserEntity user);
 
     /**
      * Lấy tất cả lesson của user
