@@ -30,7 +30,7 @@ public class UserLesson extends BaseEntity {
     private Lesson lesson;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive = false;
+    private boolean active = false;
 
     @Column(name = "is_completed", nullable = false)
     private boolean isCompleted = false;
