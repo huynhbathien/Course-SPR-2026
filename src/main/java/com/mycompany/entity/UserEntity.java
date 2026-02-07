@@ -48,8 +48,8 @@ public class UserEntity extends BaseEntity implements Serializable {
         private String role;
 
         @OneToMany(mappedBy = "user", cascade = {
-                        CascadeType.PERSIST, CascadeType.MERGE,
-                        CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.LAZY)
+                        CascadeType.PERSIST, CascadeType.MERGE
+                        }, orphanRemoval = true, fetch = FetchType.LAZY)
         private List<UserCourse> userCourses = new ArrayList<>();
 
         @ManyToMany(mappedBy = "users")
