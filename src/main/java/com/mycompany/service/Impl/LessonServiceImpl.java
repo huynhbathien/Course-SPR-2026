@@ -137,7 +137,7 @@ public class LessonServiceImpl implements LessonService {
         public String completeLesson(Long userId, Long lessonId) {
                 UserEntity user = userRepository.findById(userId)
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                EnumError.LESSON_NOT_FOUND.getMessage() + " with id: " + userId));
+                                                EnumAuthError.USER_NOT_FOUND.getMessage() + " with id: " + userId));
 
                 Lesson lesson = lessonRepository.findById(lessonId)
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
@@ -158,14 +158,11 @@ public class LessonServiceImpl implements LessonService {
                 userLessonRepository.save(userLesson);
 
                 // Tìm tất cả lesson có lessonRequire = lesson này
-                List<Lesson> dependentLessons = lessonRepository.findByLessonRequire(lesson);
+                List<Lesson> dependentLessons = lessonRepository.findByLessonRequire(lesson.getId());
 
                 for (Lesson dependentLesson : dependentLessons) {
-                        Lesson prerequisiteLesson = lessonRepository.findById(dependentLesson.getLessonRequireId())
-                                        .orElse(null);
-                        // Kiểm tra user đã complete prerequisite chưa
-                        if (userLessonRepository.existsByUserAndLessonAndIsCompletedTrue(user,
-                                        prerequisiteLesson)) {
+                        // Kiểm tra user đã complete lesson hiện tại (prerequisite) chưa
+                        if (userLessonRepository.existsByUserAndLessonAndIsCompletedTrue(user, lesson)) {
                                 // Tạo UserLesson cho dependent lesson và set isActive = true
                                 UserLesson depUserLesson = userLessonRepository
                                                 .findByUserAndLesson(user, dependentLesson)

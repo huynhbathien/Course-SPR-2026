@@ -1,6 +1,7 @@
 package com.mycompany.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,7 +19,7 @@ public class LessonRequest {
     @NotBlank(message = "Content is mandatory")
     private String content;
 
-    @NotBlank(message = "Course ID is mandatory")
+    @NotNull(message = "Course ID is mandatory")
     private Long courseId;
 
     private Long lessonRequireId;

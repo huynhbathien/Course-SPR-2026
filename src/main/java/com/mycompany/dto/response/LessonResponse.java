@@ -14,6 +14,5 @@ public class LessonResponse {
     private String title;
     private String content;
     private Long courseId;
-    private boolean isActive;
     private Long lessonRequireId; // ID của lesson phải hoàn thành trước
 }

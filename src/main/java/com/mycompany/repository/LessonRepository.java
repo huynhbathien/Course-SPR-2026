@@ -24,7 +24,15 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     /**
      * Tìm tất cả lesson có lessonRequire = lesson này
      */
-    List<Lesson> findByLessonRequire(Lesson lessonRequire);
+    @Query("SELECT l FROM Lesson l WHERE l.lessonRequireId = :lessonRequireId")
+    List<Lesson> findByLessonRequire(@Param("lessonRequireId") Long lessonRequireId);
+
+    /**
+     * Overload: accept Lesson object
+     */
+    default List<Lesson> findByLessonRequire(Lesson lesson) {
+        return findByLessonRequire(lesson.getId());
+    }
 
     @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.createdAt ASC")
     List<Lesson> findByCourseIdOrderByCreatedAt(@Param("courseId") Long courseId);
