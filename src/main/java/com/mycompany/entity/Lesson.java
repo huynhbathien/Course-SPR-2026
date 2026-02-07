@@ -40,8 +40,8 @@ public class Lesson extends BaseEntity {
      * Thay thế @ManyToMany users để tránh N+1 query
      */
     @OneToMany(mappedBy = "lesson", cascade = {
-            CascadeType.PERSIST, CascadeType.MERGE,
-            CascadeType.REMOVE }, orphanRemoval = true, fetch = FetchType.LAZY)
+            CascadeType.PERSIST, CascadeType.MERGE
+    }, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserLesson> userLessons = new ArrayList<>();
 
 }
