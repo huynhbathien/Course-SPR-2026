@@ -18,6 +18,7 @@ import com.mycompany.entity.UserCourse;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumError;
 import com.mycompany.mapstruct.CourseMapper;
+import com.mycompany.mapstruct.UserCourseMapper;
 import com.mycompany.repository.CourseRepository;
 import com.mycompany.repository.UserCourseRepository;
 import com.mycompany.repository.UserRepository;
@@ -35,6 +36,7 @@ public class CourseServiceImpl implements CourseService {
     private final UserRepository userRepository;
     private final UserCourseRepository userCourseRepository;
     private final CourseMapper courseMapper;
+    private final UserCourseMapper userCourseMapper;
 
     @Override
     public CourseResponse getCourseDetails(Long courseId) {
@@ -123,37 +125,29 @@ public class CourseServiceImpl implements CourseService {
     /**
      * User mua khóa học - tạo record UserCourse với isActive = true
      */
-    @Transactional
-    public CourseResponse purchaseCourse(Long userId, Long courseId) {
-        UserEntity user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        "User not found with id: " + userId));
+    // @Transactional
+    // public CourseResponse purchaseCourse(Long userId, Long courseId) {
+    // UserEntity user = userRepository.findById(userId)
+    // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+    // "User not found with id: " + userId));
 
-        Course course = courseRepository.findById(courseId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                        EnumError.COURSE_NOT_FOUND.getMessage() + " with id: " + courseId));
+    // Course course = courseRepository.findById(courseId)
+    // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
+    // EnumError.COURSE_NOT_FOUND.getMessage() + " with id: " + courseId));
 
-        // Kiểm tra user đã mua khóa học này chưa
-        UserCourse userCourse = userCourseRepository.findByUserAndCourse(user, course)
-                .orElse(null);
+    // // Kiểm tra user đã mua khóa học này chưa
+    // UserCourse userCourse =
+    // userCourseRepository.findByUserIdAndCourseId(user.getId(), course.getId());
 
-        if (userCourse == null) {
-            // Tạo mới record UserCourse
-            userCourse = new UserCourse();
-            userCourse.setUser(user);
-            userCourse.setCourse(course);
-            userCourse.setActive(true);
-            userCourse.setPurchaseDate(LocalDateTime.now());
-            userCourse.setProgress(0);
-            userCourseRepository.save(userCourse);
-        } else {
-            // Nếu đã mua rồi, chỉ update isActive = true
-            userCourse.setActive(true);
-            userCourse.setPurchaseDate(LocalDateTime.now());
-            userCourseRepository.save(userCourse);
-        }
+    // if (userCourse != null) {
+    // throw new ResponseStatusException(HttpStatus.CONFLICT,
+    // "User with id: " + userId + " has already purchased course with id: " +
+    // courseId);
+    // }
 
-        return courseMapper.toCourseResponse(course);
-    }
+    // // Tạo mới record UserCourse
+
+    // return courseMapper.toCourseResponse(course);
+    // }
 
 }
