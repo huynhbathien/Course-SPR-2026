@@ -63,6 +63,15 @@ public class LessonServiceImpl implements LessonService {
                                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                                         EnumError.LESSON_REQUIRE_NOT_FOUND.getMessage() + " with id: "
                                                                         + lessonRequest.getLessonRequireId()));
+
+                        // Validate circular dependency
+                        if (hasCircularDependency(lessonRequire, null)) {
+                                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                                "Circular dependency detected: Lesson " + lessonRequire.getId()
+                                                                + " cannot have " + lesson.getId()
+                                                                + " as prerequisite");
+                        }
+
                         lesson.setLessonRequireId(lessonRequire.getId());
                 }
 
@@ -101,6 +110,16 @@ public class LessonServiceImpl implements LessonService {
                                         .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                                         EnumError.LESSON_REQUIRE_NOT_FOUND.getMessage() + " with id: "
                                                                         + lessonRequest.getLessonRequireId()));
+
+                        // Validate circular dependency - exclude current lesson from check
+                        if (hasCircularDependency(lessonRequire,
+                                        new java.util.HashSet<>(java.util.List.of(lessonId)))) {
+                                throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                                                "Circular dependency detected: Lesson " + lessonRequire.getId()
+                                                                + " cannot have " + lesson.getId()
+                                                                + " as prerequisite");
+                        }
+
                         lesson.setLessonRequireId(lessonRequire.getId());
                 } else {
                         lesson.setLessonRequireId(null);
@@ -143,6 +162,16 @@ public class LessonServiceImpl implements LessonService {
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                                                 EnumError.LESSON_NOT_FOUND.getMessage() + " with id: " + lessonId));
 
+                // Validate: User has access to this lesson's course
+                boolean hasAccess = user.getUserCourses().stream()
+                                .anyMatch(uc -> uc.getCourse().getId().equals(lesson.getCourse().getId())
+                                                && uc.isActive());
+
+                if (!hasAccess) {
+                        throw new ResponseStatusException(HttpStatus.FORBIDDEN,
+                                        "User does not have access to course containing this lesson");
+                }
+
                 // Tạo/Update UserLesson - mark as completed
                 UserLesson userLesson = userLessonRepository.findByUserAndLesson(user, lesson)
                                 .orElse(null);
@@ -161,8 +190,17 @@ public class LessonServiceImpl implements LessonService {
                 List<Lesson> dependentLessons = lessonRepository.findByLessonRequire(lesson.getId());
 
                 for (Lesson dependentLesson : dependentLessons) {
+                        // Validate: Dependent lesson is in same course or course user has access to
+                        boolean hasAccessToDependent = user.getUserCourses().stream()
+                                        .anyMatch(uc -> uc.getCourse().getId()
+                                                        .equals(dependentLesson.getCourse().getId()) && uc.isActive());
+
+                        if (!hasAccessToDependent) {
+                                continue; // Skip if user doesn't have access to dependent lesson's course
+                        }
+
                         // Kiểm tra user đã complete lesson hiện tại (prerequisite) chưa
-                        if (userLessonRepository.existsByUserAndLessonAndIsCompletedTrue(user, lesson)) {
+                        if (userLessonRepository.existsByUserAndLessonAndCompletedTrue(user, lesson)) {
                                 // Tạo UserLesson cho dependent lesson và set isActive = true
                                 UserLesson depUserLesson = userLessonRepository
                                                 .findByUserAndLesson(user, dependentLesson)
@@ -189,7 +227,7 @@ public class LessonServiceImpl implements LessonService {
                                                 EnumAuthError.USER_NOT_FOUND.getMessage() + " with id: " + userId));
 
                 List<UserLesson> completedLessons = userLessonRepository
-                                .findByUserAndIsCompletedTrue(user);
+                                .findByUserAndCompletedTrue(user);
                 return userLessonMapper.toUserLessonResponseList(completedLessons);
         }
 
@@ -203,8 +241,38 @@ public class LessonServiceImpl implements LessonService {
                                                 EnumAuthError.USER_NOT_FOUND.getMessage() + " with id: " + userId));
 
                 List<UserLesson> activeLessons = userLessonRepository
-                                .findByUserAndIsActiveTrue(user);
+                                .findByUserAndActiveTrue(user);
                 return userLessonMapper.toUserLessonResponseList(activeLessons);
+        }
+
+        /**
+         * Helper method to detect circular dependencies in lesson prerequisites
+         * 
+         * @param lesson  The lesson to check
+         * @param visited Set of visited lessons to detect cycles
+         * @return true if circular dependency exists
+         */
+        private boolean hasCircularDependency(Lesson lesson, java.util.Set<Long> visited) {
+                if (visited == null) {
+                        visited = new java.util.HashSet<>();
+                }
+
+                if (visited.contains(lesson.getId())) {
+                        return true; // Circular dependency detected
+                }
+
+                if (lesson.getLessonRequireId() == null) {
+                        return false; // No prerequisite
+                }
+
+                visited.add(lesson.getId());
+                Lesson requiredLesson = lessonRepository.findById(lesson.getLessonRequireId()).orElse(null);
+
+                if (requiredLesson == null) {
+                        return false;
+                }
+
+                return hasCircularDependency(requiredLesson, visited);
         }
 
 }

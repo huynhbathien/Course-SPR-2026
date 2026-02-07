@@ -49,11 +49,13 @@ public class UserEntity extends BaseEntity implements Serializable {
 
         @OneToMany(mappedBy = "user", cascade = {
                         CascadeType.PERSIST, CascadeType.MERGE
-                        }, orphanRemoval = true, fetch = FetchType.LAZY)
+        }, orphanRemoval = true, fetch = FetchType.LAZY)
         private List<UserCourse> userCourses = new ArrayList<>();
 
-        @ManyToMany(mappedBy = "users")
-        private List<Lesson> lessons = new ArrayList<>();
+        @OneToMany(mappedBy = "user", cascade = {
+                        CascadeType.PERSIST, CascadeType.MERGE
+        }, orphanRemoval = true, fetch = FetchType.LAZY)
+        private List<UserLesson> userLessons = new ArrayList<>();
 
         @Column(nullable = false)
         private boolean active = true;
