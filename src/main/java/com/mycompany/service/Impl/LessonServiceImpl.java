@@ -200,7 +200,7 @@ public class LessonServiceImpl implements LessonService {
         public List<UserLessonResponse> getUserActiveLessons(Long userId) {
                 UserEntity user = userRepository.findById(userId)
                                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
-                                                EnumError.LESSON_NOT_FOUND.getMessage() + " with id: " + userId));
+                                                EnumAuthError.USER_NOT_FOUND.getMessage() + " with id: " + userId));
 
                 List<UserLesson> activeLessons = userLessonRepository
                                 .findByUserAndIsActiveTrue(user);
