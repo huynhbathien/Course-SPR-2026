@@ -43,7 +43,8 @@ build/
 logs/
 
 ### secret file ###
-secret/
+secrets/keystore.p12
+secrets/jwt_hs512_key.txt
 
 ### test folder ###
 src/test/
@@ -53,3 +54,4 @@ src/test/
 
 ###  temp files ###
 *.txt
+

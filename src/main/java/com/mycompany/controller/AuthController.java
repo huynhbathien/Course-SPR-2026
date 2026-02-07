@@ -1,5 +1,12 @@
 package com.mycompany.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -8,12 +15,16 @@ import org.springframework.web.bind.annotation.RestController;
 import com.mycompany.dto.request.APIResponse;
 import com.mycompany.dto.request.LoginRequestDTO;
 import com.mycompany.dto.request.RegisterRequestDTO;
+import com.mycompany.enums.EnumAuthError;
 import com.mycompany.enums.EnumSuccess;
 import com.mycompany.service.AuthService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -22,9 +33,31 @@ public class AuthController {
 
     AuthService authService;
 
+    String refreshTokenPath = "/auth/refresh";
+    @Value("${token.refresh-token-expiration:604800}")
+    long refreshTokenExpirationSeconds; // in seconds (7 days default)
+
+    public void setCookie(HttpServletResponse response, String name, String value, int maxAge, String path) {
+        ResponseCookie cookie = ResponseCookie.from(name, value)
+                .httpOnly(true)
+                .secure(true)
+                .path(path)
+                .maxAge(maxAge)
+                .sameSite("Strict")
+                .build();
+        response.addHeader("Set-Cookie", cookie.toString());
+    }
+
     @PostMapping("/login")
-    public APIResponse<Object> login(@RequestBody LoginRequestDTO authRequestDTO) {
-        String data = authService.login(authRequestDTO);
+    public APIResponse<Object> login(@RequestBody LoginRequestDTO authRequestDTO, HttpServletResponse response) {
+        HashMap<String, String> data = authService.login(authRequestDTO);
+        setCookie(
+                response,
+                "refreshToken",
+                data.get("refreshToken"),
+                (int) refreshTokenExpirationSeconds,
+                refreshTokenPath);
+
         return APIResponse.success(EnumSuccess.LOGIN_SUCCESS.getCode(),
                 EnumSuccess.LOGIN_SUCCESS.getMessage(),
                 data);
@@ -32,11 +65,68 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public APIResponse<Object> register(@RequestBody RegisterRequestDTO registerRequestDTO) {
-        String data = authService.register(registerRequestDTO);
+    public APIResponse<Object> register(@RequestBody RegisterRequestDTO registerRequestDTO,
+            HttpServletResponse response) {
+        HashMap<String, String> data = authService.register(registerRequestDTO);
+        setCookie(
+                response,
+                "refreshToken",
+                data.get("refreshToken"),
+                (int) refreshTokenExpirationSeconds,
+                refreshTokenPath);
         return APIResponse.success(EnumSuccess.REGISTRATION_SUCCESS.getCode(),
                 EnumSuccess.REGISTRATION_SUCCESS.getMessage(),
                 data);
     }
 
+    @PostMapping("/refresh")
+    public APIResponse<Object> refreshToken() {
+        try {
+            // Lấy current authenticated user
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return APIResponse.error(EnumAuthError.UNAUTHORIZED.getCode(),
+                        EnumAuthError.UNAUTHORIZED.getMessage(),
+                        EnumAuthError.UNAUTHORIZED.name());
+            }
+
+            String username = authentication.getName();
+
+            // Delegate logic to service
+            Map<String, Object> response = authService.refreshToken(username);
+
+            return APIResponse.success(EnumSuccess.LOGIN_SUCCESS.getCode(),
+                    EnumSuccess.LOGIN_SUCCESS.getMessage(), response);
+        } catch (Exception e) {
+            log.error("Error refreshing token: {}", e.getMessage(), e);
+            return APIResponse.error(EnumAuthError.INTERNAL_ERROR.getCode(),
+                    EnumAuthError.INTERNAL_ERROR.getMessage(), EnumAuthError.INTERNAL_ERROR.name());
+        }
+    }
+
+    @PostMapping("/logout")
+    public APIResponse<Object> logout() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) {
+                return APIResponse.error(EnumAuthError.UNAUTHORIZED.getCode(),
+                        EnumAuthError.UNAUTHORIZED.getMessage(), EnumAuthError.UNAUTHORIZED.name());
+            }
+
+            String username = authentication.getName();
+
+            // Delegate logic to service
+            authService.logout(username);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "Logged out successfully");
+
+            return APIResponse.success(EnumSuccess.SUCCESS.getCode(),
+                    "Logged out successfully", response);
+        } catch (Exception e) {
+            log.error("Error during logout: {}", e.getMessage(), e);
+            return APIResponse.error(EnumAuthError.INTERNAL_ERROR.getCode(),
+                    EnumAuthError.INTERNAL_ERROR.getMessage(), EnumAuthError.INTERNAL_ERROR.name());
+        }
+    }
 }
