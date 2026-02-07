@@ -5,6 +5,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import lombok.extern.slf4j.Slf4j;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -99,7 +100,7 @@ public class RedisUtil {
      */
     public long delete(String... keys) {
         try {
-            long count = redisTemplate.delete(java.util.Arrays.asList(keys));
+            long count = redisTemplate.delete(Arrays.asList(keys));
             if (count > 0) {
                 log.debug("Redis DELETE: {} keys deleted", count);
             }

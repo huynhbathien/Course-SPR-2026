@@ -18,6 +18,7 @@ public enum EnumAuthError {
     TOKEN_INVALID(2002, "Invalid token"),
     TOKEN_MISSING(2003, "Token is missing"),
     TOKEN_MALFORMED(2004, "Malformed token"),
+    TOKEN_REVOKED(2007, "Token has been revoked"),
     REFRESH_TOKEN_NOT_FOUND(2005, "Refresh token not found or expired"),
     REFRESH_TOKEN_EXPIRED(2006, "Refresh token has expired"),
 
