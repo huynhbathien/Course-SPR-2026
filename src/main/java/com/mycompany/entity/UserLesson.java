@@ -33,7 +33,7 @@ public class UserLesson extends BaseEntity {
     private boolean active = false;
 
     @Column(name = "is_completed", nullable = false)
-    private boolean isCompleted = false;
+    private boolean completed = false;
 
     @Column(name = "completed_date")
     private LocalDateTime completedDate;
