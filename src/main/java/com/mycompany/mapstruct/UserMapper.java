@@ -9,5 +9,5 @@ import com.mycompany.entity.UserEntity;
 @Mapper(config = MapStructConfig.class)
 public interface UserMapper {
 
-    UserEntity toUserEntity(RegisterRequestDTO userDTO);
+    UserEntity toUserEntity(RegisterRequestDTO registerRequestDTO);
 }

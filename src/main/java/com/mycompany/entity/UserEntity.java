@@ -5,12 +5,13 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Index;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,12 +47,15 @@ public class UserEntity extends BaseEntity implements Serializable {
         @Column(length = 50)
         private String role;
 
-        @ManyToMany
-        @JoinTable(name = "user_courses", joinColumns = @JoinColumn(name = "user_id"), inverseJoinColumns = @JoinColumn(name = "course_id"))
-        private List<Course> courses = new ArrayList<>();
+        @OneToMany(mappedBy = "user", cascade = {
+                        CascadeType.PERSIST, CascadeType.MERGE
+        }, orphanRemoval = true, fetch = FetchType.LAZY)
+        private List<UserCourse> userCourses = new ArrayList<>();
 
-        @ManyToMany(mappedBy = "users")
-        private List<Lesson> lessons = new ArrayList<>();
+        @OneToMany(mappedBy = "user", cascade = {
+                        CascadeType.PERSIST, CascadeType.MERGE
+        }, orphanRemoval = true, fetch = FetchType.LAZY)
+        private List<UserLesson> userLessons = new ArrayList<>();
 
         @Column(nullable = false)
         private boolean active = true;
