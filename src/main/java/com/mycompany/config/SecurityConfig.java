@@ -16,6 +16,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 import com.mycompany.security.JwtAuthenticationFilter;
+import com.mycompany.security.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
@@ -27,12 +28,16 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtExceptionHandlerFilter jwtExceptionHandlerFilter;
 
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
             @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource,
-            JwtExceptionHandlerFilter jwtExceptionHandlerFilter) {
+            JwtExceptionHandlerFilter jwtExceptionHandlerFilter,
+            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
         this.jwtExceptionHandlerFilter = jwtExceptionHandlerFilter;
+        this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
     }
 
     @Bean
@@ -43,10 +48,15 @@ public class SecurityConfig implements WebMvcConfigurer {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/home/**").permitAll()
+                        .requestMatchers("/oauth2/**").permitAll()
+                        .requestMatchers("/login/**").permitAll()
                         .anyRequest().authenticated())
+                .oauth2Login(oauth2 -> oauth2
+                        .successHandler(oAuth2LoginSuccessHandler))
                 .addFilterBefore(jwtExceptionHandlerFilter, LogoutFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());
+
         return http.build();
     }
 

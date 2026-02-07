@@ -1,6 +1,5 @@
 package com.mycompany.service.Impl;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -14,14 +13,9 @@ import com.mycompany.dto.request.CourseRequest;
 import com.mycompany.dto.response.CourseGroupResponse;
 import com.mycompany.dto.response.CourseResponse;
 import com.mycompany.entity.Course;
-import com.mycompany.entity.UserCourse;
-import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumError;
 import com.mycompany.mapstruct.CourseMapper;
-import com.mycompany.mapstruct.UserCourseMapper;
 import com.mycompany.repository.CourseRepository;
-import com.mycompany.repository.UserCourseRepository;
-import com.mycompany.repository.UserRepository;
 import com.mycompany.service.CourseService;
 
 import jakarta.transaction.Transactional;
@@ -33,10 +27,10 @@ import lombok.RequiredArgsConstructor;
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
-    private final UserRepository userRepository;
-    private final UserCourseRepository userCourseRepository;
+    // private final UserRepository userRepository;
+    // private final UserCourseRepository userCourseRepository;
     private final CourseMapper courseMapper;
-    private final UserCourseMapper userCourseMapper;
+    // private final UserCourseMapper userCourseMapper;
 
     @Override
     public CourseResponse getCourseDetails(Long courseId) {

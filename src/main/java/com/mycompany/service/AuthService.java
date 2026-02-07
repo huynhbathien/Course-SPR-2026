@@ -1,10 +1,17 @@
 package com.mycompany.service;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.mycompany.dto.request.LoginRequestDTO;
 import com.mycompany.dto.request.RegisterRequestDTO;
 
 public interface AuthService {
-    String login(LoginRequestDTO authRequestDTO);
+    HashMap<String, String> login(LoginRequestDTO authRequestDTO);
 
-    String register(RegisterRequestDTO registerRequestDTO);
+    HashMap<String, String> register(RegisterRequestDTO registerRequestDTO);
+
+    Map<String, Object> refreshToken(String username);
+
+    void logout(String username);
 }
