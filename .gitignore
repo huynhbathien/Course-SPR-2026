@@ -45,6 +45,7 @@ logs/
 ### secret file ###
 secrets/keystore.p12
 secrets/jwt_hs512_key.txt
+.env
 
 ### test folder ###
 src/test/

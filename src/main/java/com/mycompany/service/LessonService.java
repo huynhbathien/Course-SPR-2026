@@ -34,4 +34,6 @@ public interface LessonService {
      */
     List<UserLessonResponse> getUserActiveLessons(Long userId);
 
+    List<LessonResponse> searchLessons(String keyword);
+
 }

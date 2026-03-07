@@ -12,7 +12,10 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mycompany.dto.request.APIResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+
+import com.mycompany.dto.APIResponse;
 import com.mycompany.dto.request.LoginRequestDTO;
 import com.mycompany.dto.request.RegisterRequestDTO;
 import com.mycompany.enums.EnumAuthError;
@@ -37,6 +40,18 @@ public class AuthController {
     @Value("${token.refresh-token-expiration:604800}")
     long refreshTokenExpirationSeconds; // in seconds (7 days default)
 
+    private String resolveClientIp(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isBlank()) {
+            return xForwardedFor.split(",")[0].trim();
+        }
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isBlank()) {
+            return xRealIp.trim();
+        }
+        return request.getRemoteAddr();
+    }
+
     public void setCookie(HttpServletResponse response, String name, String value, int maxAge, String path) {
         ResponseCookie cookie = ResponseCookie.from(name, value)
                 .httpOnly(true)
@@ -49,8 +64,10 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public APIResponse<Object> login(@RequestBody LoginRequestDTO authRequestDTO, HttpServletResponse response) {
-        HashMap<String, String> data = authService.login(authRequestDTO);
+    public APIResponse<Object> login(@Valid @RequestBody LoginRequestDTO authRequestDTO,
+            HttpServletRequest request, HttpServletResponse response) {
+        String clientIp = resolveClientIp(request);
+        HashMap<String, String> data = authService.login(authRequestDTO, clientIp);
         setCookie(
                 response,
                 "refreshToken",
@@ -65,7 +82,7 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public APIResponse<Object> register(@RequestBody RegisterRequestDTO registerRequestDTO,
+    public APIResponse<Object> register(@Valid @RequestBody RegisterRequestDTO registerRequestDTO,
             HttpServletResponse response) {
         HashMap<String, String> data = authService.register(registerRequestDTO);
         setCookie(

@@ -18,6 +18,8 @@ public interface CourseService {
 
     public List<CourseGroupResponse> listAllCourses();
 
+    List<CourseResponse> searchCourses(String keyword);
+
     /**
      * User mua khóa học - activate course
      */

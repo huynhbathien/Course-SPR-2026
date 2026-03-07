@@ -37,7 +37,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.createdAt ASC")
     List<Lesson> findByCourseIdOrderByCreatedAt(@Param("courseId") Long courseId);
 
-    @Query("SELECT l FROM Lesson l WHERE l.title LIKE %:keyword%")
+    @Query("SELECT l FROM Lesson l WHERE l.title LIKE %:keyword% ESCAPE '\\\\'")
     List<Lesson> searchByKeyword(@Param("keyword") String keyword);
 
     long countByCourseId(Long courseId);

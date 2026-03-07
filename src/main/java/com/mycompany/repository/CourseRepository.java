@@ -18,7 +18,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByType(String type);
 
-    @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword%")
+    @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword% ESCAPE '\\\\'")
     List<Course> searchByKeyword(@Param("keyword") String keyword);
 
     @Query("SELECT c FROM Course c ORDER BY c.createdAt DESC")

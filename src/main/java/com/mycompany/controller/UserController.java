@@ -1,5 +1,6 @@
 package com.mycompany.controller;
 
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -7,7 +8,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mycompany.dto.request.APIResponse;
+import com.mycompany.dto.APIResponse;
 import com.mycompany.enums.EnumAuthError;
 import com.mycompany.enums.EnumSuccess;
 import com.mycompany.service.UserService;
@@ -30,6 +31,7 @@ public class UserController {
      * 
      * @return User profile information
      */
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/me")
     public APIResponse<Object> getCurrentUser() {
         try {
@@ -61,6 +63,7 @@ public class UserController {
      * @param userId User ID
      * @return User information
      */
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{userId}")
     public APIResponse<Object> getUserById(@PathVariable Long userId) {
         try {

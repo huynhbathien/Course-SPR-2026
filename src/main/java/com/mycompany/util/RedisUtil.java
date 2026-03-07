@@ -1,12 +1,14 @@
 package com.mycompany.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisCallback;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Component;
+
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Generic Redis Utility for common Redis operations
@@ -270,7 +272,10 @@ public class RedisUtil {
      */
     public void flushDb() {
         try {
-            redisTemplate.getConnectionFactory().getConnection().flushDb();
+            redisTemplate.execute((RedisCallback<Object>) connection -> {
+                connection.serverCommands().flushDb();
+                return null;
+            });
             log.warn("Redis database flushed!");
         } catch (Exception e) {
             log.error("Error flushing Redis database", e);

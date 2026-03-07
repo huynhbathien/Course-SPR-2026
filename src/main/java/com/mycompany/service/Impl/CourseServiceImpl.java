@@ -17,6 +17,7 @@ import com.mycompany.enums.EnumError;
 import com.mycompany.mapstruct.CourseMapper;
 import com.mycompany.repository.CourseRepository;
 import com.mycompany.service.CourseService;
+import com.mycompany.util.QueryUtils;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -114,6 +115,15 @@ public class CourseServiceImpl implements CourseService {
             courseGroupResponses.add(groupResponse);
         }
         return courseGroupResponses;
+    }
+
+    @Override
+    public List<CourseResponse> searchCourses(String keyword) {
+        String escaped = QueryUtils.escapeLikeKeyword(keyword);
+        List<Course> courses = courseRepository.searchByKeyword(escaped);
+        return courses.stream()
+                .map(courseMapper::toCourseResponse)
+                .collect(Collectors.toList());
     }
 
     /**

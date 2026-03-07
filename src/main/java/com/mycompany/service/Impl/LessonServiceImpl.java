@@ -23,6 +23,7 @@ import com.mycompany.repository.CourseRepository;
 import com.mycompany.repository.LessonRepository;
 import com.mycompany.repository.UserLessonRepository;
 import com.mycompany.repository.UserRepository;
+import com.mycompany.util.QueryUtils;
 import com.mycompany.service.LessonService;
 
 import jakarta.transaction.Transactional;
@@ -139,6 +140,13 @@ public class LessonServiceImpl implements LessonService {
 
                 lessonRepository.delete(lesson);
                 return EnumSuccess.LESSON_DELETION_SUCCESS.getMessage();
+        }
+
+        @Override
+        public List<LessonResponse> searchLessons(String keyword) {
+                String escaped = QueryUtils.escapeLikeKeyword(keyword);
+                List<Lesson> lessons = lessonRepository.searchByKeyword(escaped);
+                return lessonMapper.toLessonResponseList(lessons);
         }
 
         @Override

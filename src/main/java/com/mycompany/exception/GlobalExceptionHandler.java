@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.mycompany.dto.request.APIResponse;
+import com.mycompany.dto.APIResponse;
 import com.mycompany.enums.EnumAuthError;
 
 import lombok.extern.slf4j.Slf4j;
