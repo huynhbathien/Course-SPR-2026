@@ -40,8 +40,7 @@ public class AuthServiceImpl implements AuthService {
     LoginAttemptService loginAttemptService;
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils,
-            UserMapper userMapper, TokenRedisService tokenRedisService,
-            LoginAttemptService loginAttemptService) {
+            UserMapper userMapper, TokenRedisService tokenRedisService, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
@@ -76,6 +75,9 @@ public class AuthServiceImpl implements AuthService {
                     username, clientIp, remaining);
             throw new BadCredentialsException(EnumAuthError.INVALID_CREDENTIALS.getMessage());
         }
+
+        // Success – clear attempt counter
+        loginAttemptService.loginSucceeded(clientIp);
 
         // Success – clear attempt counter
         loginAttemptService.loginSucceeded(clientIp);

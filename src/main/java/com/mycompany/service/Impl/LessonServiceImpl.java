@@ -25,8 +25,8 @@ import com.mycompany.repository.CourseRepository;
 import com.mycompany.repository.LessonRepository;
 import com.mycompany.repository.UserLessonRepository;
 import com.mycompany.repository.UserRepository;
-import com.mycompany.util.QueryUtils;
 import com.mycompany.service.LessonService;
+import com.mycompany.util.QueryUtils;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
