@@ -7,7 +7,7 @@ import com.mycompany.dto.request.LoginRequestDTO;
 import com.mycompany.dto.request.RegisterRequestDTO;
 
 public interface AuthService {
-    HashMap<String, String> login(LoginRequestDTO authRequestDTO);
+    HashMap<String, String> login(LoginRequestDTO authRequestDTO, String clientIp);
 
     HashMap<String, String> register(RegisterRequestDTO registerRequestDTO);
 

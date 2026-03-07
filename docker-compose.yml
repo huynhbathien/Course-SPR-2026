@@ -16,15 +16,16 @@ services:
       - SPRING_JPA_HIBERNATE_DDL_AUTO=update
       - SPRING_REDIS_HOST=redis
       - SPRING_REDIS_PORT=6379
-      - SPRING_KAFKA_BOOTSTRAP_SERVERS=kafka:9092
       - JAVA_OPTS=-Xmx512m -Xms256m
       - JWT_SECRET_FILE=/run/secrets/jwt_hs512_key
+      - GOOGLE_CLIENT_ID=${GOOGLE_CLIENT_ID}
+      - GOOGLE_CLIENT_SECRET=${GOOGLE_CLIENT_SECRET}
+      - GOOGLE_REDIRECT_URI=${GOOGLE_REDIRECT_URI:-https://localhost:8080/login/oauth2/code/google}
     secrets:
       - jwt_hs512_key
     depends_on:
       - mysql
       - redis
-      - kafka
     networks:
       - course-network
     restart: unless-stopped
@@ -68,44 +69,6 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
-
-  # Apache Kafka
-  kafka:
-    image: confluentinc/cp-kafka:7.6.0
-    container_name: course-kafka
-    ports:
-      - "9092:9092"
-      - "19092:19092"
-    environment:
-      KAFKA_BROKER_ID: 1
-      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092,PLAINTEXT_HOST://localhost:19092
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
-      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
-    depends_on:
-      - zookeeper
-    networks:
-      - course-network
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "kafka-topics", "--bootstrap-server", "localhost:9092", "--list"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
-  # Zookeeper (for Kafka)
-  zookeeper:
-    image: confluentinc/cp-zookeeper:7.6.0
-    container_name: course-zookeeper
-    environment:
-      ZOOKEEPER_CLIENT_PORT: 2181
-      ZOOKEEPER_TICK_TIME: 2000
-    ports:
-      - "2181:2181"
-    networks:
-      - course-network
-    restart: unless-stopped
 
 volumes:
   mysql_data:

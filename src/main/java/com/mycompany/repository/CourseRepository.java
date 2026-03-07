@@ -1,6 +1,8 @@
 package com.mycompany.repository;
 
 import com.mycompany.entity.Course;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -18,8 +20,8 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     List<Course> findByType(String type);
 
-    @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword%")
-    List<Course> searchByKeyword(@Param("keyword") String keyword);
+    @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword% ESCAPE '!'")
+    Page<Course> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     @Query("SELECT c FROM Course c ORDER BY c.createdAt DESC")
     List<Course> findAllByNewest();

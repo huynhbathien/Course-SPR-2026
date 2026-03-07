@@ -2,6 +2,9 @@ package com.mycompany.service;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.mycompany.dto.request.LessonRequest;
 import com.mycompany.dto.response.LessonResponse;
 import com.mycompany.dto.response.UserLessonResponse;
@@ -33,5 +36,7 @@ public interface LessonService {
      * Lấy danh sách lesson active của user
      */
     List<UserLessonResponse> getUserActiveLessons(Long userId);
+
+    Page<LessonResponse> searchLessons(String keyword, Pageable pageable);
 
 }

@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -15,11 +16,14 @@ import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import com.mycompany.security.RateLimitFilter;
+
 import com.mycompany.security.JwtAuthenticationFilter;
 import com.mycompany.security.OAuth2LoginSuccessHandler;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig implements WebMvcConfigurer {
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
@@ -30,14 +34,18 @@ public class SecurityConfig implements WebMvcConfigurer {
 
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
+    private final RateLimitFilter rateLimitFilter;
+
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter,
             @Qualifier("corsConfigurationSource") CorsConfigurationSource corsConfigurationSource,
             JwtExceptionHandlerFilter jwtExceptionHandlerFilter,
-            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler) {
+            OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler,
+            RateLimitFilter rateLimitFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
         this.corsConfigurationSource = corsConfigurationSource;
         this.jwtExceptionHandlerFilter = jwtExceptionHandlerFilter;
         this.oAuth2LoginSuccessHandler = oAuth2LoginSuccessHandler;
+        this.rateLimitFilter = rateLimitFilter;
     }
 
     @Bean
@@ -53,6 +61,7 @@ public class SecurityConfig implements WebMvcConfigurer {
                         .anyRequest().authenticated())
                 .oauth2Login(oauth2 -> oauth2
                         .successHandler(oAuth2LoginSuccessHandler))
+                .addFilterBefore(rateLimitFilter, LogoutFilter.class)
                 .addFilterBefore(jwtExceptionHandlerFilter, LogoutFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .httpBasic(Customizer.withDefaults());

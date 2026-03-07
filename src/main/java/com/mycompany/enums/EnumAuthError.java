@@ -51,6 +51,7 @@ public enum EnumAuthError {
     // General errors
     UNAUTHORIZED(9001, "Unauthorized access"),
     FORBIDDEN(9002, "Forbidden"),
+    TOO_MANY_REQUESTS(9003, "Too many requests. Please try again later."),
     INTERNAL_ERROR(9999, "Internal server error");
 
     int code;

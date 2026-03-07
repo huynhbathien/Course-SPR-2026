@@ -3,6 +3,8 @@ package com.mycompany.service.Impl;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -23,6 +25,7 @@ import com.mycompany.repository.CourseRepository;
 import com.mycompany.repository.LessonRepository;
 import com.mycompany.repository.UserLessonRepository;
 import com.mycompany.repository.UserRepository;
+import com.mycompany.util.QueryUtils;
 import com.mycompany.service.LessonService;
 
 import jakarta.transaction.Transactional;
@@ -139,6 +142,15 @@ public class LessonServiceImpl implements LessonService {
 
                 lessonRepository.delete(lesson);
                 return EnumSuccess.LESSON_DELETION_SUCCESS.getMessage();
+        }
+
+        @Override
+        public Page<LessonResponse> searchLessons(String keyword, Pageable pageable) {
+                if (keyword == null || keyword.isBlank()) {
+                        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Search keyword cannot be empty");
+                }
+                String escaped = QueryUtils.escapeLikeKeyword(keyword.trim());
+                return lessonRepository.searchByKeyword(escaped, pageable).map(lessonMapper::toLessonResponse);
         }
 
         @Override

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.dto.request.APIResponse;
+import com.mycompany.dto.APIResponse;
 import com.mycompany.enums.EnumAuthError;
 import com.mycompany.exception.TokenExpiredException;
 import com.mycompany.exception.TokenRevokedException;
