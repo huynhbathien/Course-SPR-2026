@@ -4,6 +4,12 @@ target/
 !**/src/test/**/target/
 src/test/
 
+### Secrets & credentials (never commit) ###
+secrets/
+.env
+.env.*
+!.env.example
+
 ### IntelliJ IDEA ###
 .idea/modules.xml
 .idea/jarRepositories.xml
