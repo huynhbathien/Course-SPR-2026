@@ -2,6 +2,8 @@ package com.mycompany.repository;
 
 import com.mycompany.entity.Course;
 import com.mycompany.entity.Lesson;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -37,8 +39,8 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     @Query("SELECT l FROM Lesson l WHERE l.course.id = :courseId ORDER BY l.createdAt ASC")
     List<Lesson> findByCourseIdOrderByCreatedAt(@Param("courseId") Long courseId);
 
-    @Query("SELECT l FROM Lesson l WHERE l.title LIKE %:keyword%")
-    List<Lesson> searchByKeyword(@Param("keyword") String keyword);
+    @Query("SELECT l FROM Lesson l WHERE l.title LIKE %:keyword% ESCAPE '!'")
+    Page<Lesson> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);
 
     long countByCourseId(Long courseId);
 }

@@ -2,6 +2,10 @@ package com.mycompany.controller;
 
 import java.util.List;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,9 +13,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.mycompany.dto.request.APIResponse;
+import com.mycompany.dto.APIResponse;
 import com.mycompany.dto.request.CourseRequest;
 import com.mycompany.dto.response.CourseGroupResponse;
 import com.mycompany.dto.response.CourseResponse;
@@ -30,18 +35,21 @@ public class CourseController {
 
     final CourseService courseService;
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/{courseId}")
     public APIResponse<CourseResponse> getCourseDetail(@PathVariable Long courseId) {
         CourseResponse data = courseService.getCourseDetails(courseId);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping
     public APIResponse<CourseResponse> createCourse(@Valid @RequestBody CourseRequest courseRequest) {
         CourseResponse data = courseService.createCourse(courseRequest);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @PutMapping("/{courseId}")
     public APIResponse<CourseResponse> updateCourse(@PathVariable Long courseId,
             @Valid @RequestBody CourseRequest courseRequest) {
@@ -49,15 +57,28 @@ public class CourseController {
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/{courseId}")
     public APIResponse<String> deleteCourse(@PathVariable Long courseId) {
         String message = courseService.deleteCourse(courseId);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), message);
     }
 
+    @PreAuthorize("isAuthenticated()")
     @GetMapping("/list")
     public APIResponse<List<CourseGroupResponse>> listAllCourses() {
         List<CourseGroupResponse> data = courseService.listAllCourses();
+        return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
+    }
+
+    @PreAuthorize("isAuthenticated()")
+    @GetMapping("/search")
+    public APIResponse<Page<CourseResponse>> searchCourses(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, Math.min(size, 100));
+        Page<CourseResponse> data = courseService.searchCourses(keyword, pageable);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 

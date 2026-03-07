@@ -3,15 +3,21 @@ package com.mycompany.service.Impl;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.mycompany.dto.request.LoginRequestDTO;
 import com.mycompany.dto.request.RegisterRequestDTO;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumAuthError;
 import com.mycompany.mapstruct.UserMapper;
 import com.mycompany.repository.UserRepository;
 import com.mycompany.security.JwtUtils;
+import com.mycompany.security.LoginAttemptService;
 import com.mycompany.service.AuthService;
 import com.mycompany.service.TokenRedisService;
 
@@ -31,25 +37,51 @@ public class AuthServiceImpl implements AuthService {
     JwtUtils jwtUtils;
     UserMapper userMapper;
     TokenRedisService tokenRedisService;
+    LoginAttemptService loginAttemptService;
 
     public AuthServiceImpl(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils,
-            UserMapper userMapper, TokenRedisService tokenRedisService) {
+            UserMapper userMapper, TokenRedisService tokenRedisService, LoginAttemptService loginAttemptService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtils = jwtUtils;
         this.userMapper = userMapper;
         this.tokenRedisService = tokenRedisService;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @Override
-    public HashMap<String, String> login(com.mycompany.dto.request.LoginRequestDTO authRequestDTO) {
-        String username = authRequestDTO.getUsername();
-        UserEntity user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException(EnumAuthError.USER_NOT_FOUND.getMessage()));
-        String password = user.getPassword();
-        if (!passwordEncoder.matches(authRequestDTO.getPassword(), password)) {
-            throw new RuntimeException(EnumAuthError.INVALID_CREDENTIALS.getMessage());
+    public HashMap<String, String> login(LoginRequestDTO authRequestDTO, String clientIp) {
+        // Brute-force check
+        if (loginAttemptService.isBlocked(clientIp)) {
+            log.warn("Blocked login attempt from IP: {}", clientIp);
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    EnumAuthError.TOO_MANY_REQUESTS.getMessage());
         }
+
+        String username = authRequestDTO.getUsername();
+        UserEntity user;
+        try {
+            user = userRepository.findByUsername(username)
+                    .orElseThrow(() -> new UsernameNotFoundException(EnumAuthError.USER_NOT_FOUND.getMessage()));
+        } catch (RuntimeException e) {
+            loginAttemptService.loginFailed(clientIp);
+            throw e;
+        }
+
+        if (!passwordEncoder.matches(authRequestDTO.getPassword(), user.getPassword())) {
+            loginAttemptService.loginFailed(clientIp);
+            int remaining = loginAttemptService.getRemainingAttempts(clientIp);
+            log.warn("Invalid credentials for user '{}' from IP '{}'. Remaining attempts: {}",
+                    username, clientIp, remaining);
+            throw new BadCredentialsException(EnumAuthError.INVALID_CREDENTIALS.getMessage());
+        }
+
+        // Success – clear attempt counter
+        loginAttemptService.loginSucceeded(clientIp);
+
+        // Success – clear attempt counter
+        loginAttemptService.loginSucceeded(clientIp);
+
         String token = jwtUtils.generateToken(username);
         String refreshToken = jwtUtils.generateRefreshToken(username);
 
@@ -68,10 +100,10 @@ public class AuthServiceImpl implements AuthService {
     public HashMap<String, String> register(@Valid RegisterRequestDTO registerRequestDTO) {
         String username = registerRequestDTO.getUsername();
         if (userRepository.existsByUsername(username)) {
-            throw new RuntimeException(EnumAuthError.USER_ALREADY_EXISTS.getMessage());
+            throw new ResponseStatusException(HttpStatus.CONFLICT, EnumAuthError.USER_ALREADY_EXISTS.getMessage());
         }
         if (!registerRequestDTO.getPassword().equals(registerRequestDTO.getConfirmPassword())) {
-            throw new RuntimeException(EnumAuthError.PASSWORD_MISMATCH.getMessage());
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, EnumAuthError.PASSWORD_MISMATCH.getMessage());
         }
         UserEntity user = userMapper.toUserEntity(registerRequestDTO);
         user.setPassword(passwordEncoder.encode(registerRequestDTO.getPassword()));
@@ -99,14 +131,16 @@ public class AuthServiceImpl implements AuthService {
         String refreshToken = tokenRedisService.getRefreshToken(username);
         if (refreshToken == null) {
             log.warn("Refresh token not found in Redis for user: {}", username);
-            throw new RuntimeException(EnumAuthError.REFRESH_TOKEN_NOT_FOUND.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    EnumAuthError.REFRESH_TOKEN_NOT_FOUND.getMessage());
         }
 
         // Validate refresh token
         if (jwtUtils.isTokenExpired(refreshToken)) {
             log.warn("Refresh token expired for user: {}", username);
             tokenRedisService.deleteRefreshToken(username);
-            throw new RuntimeException(EnumAuthError.REFRESH_TOKEN_EXPIRED.getMessage());
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,
+                    EnumAuthError.REFRESH_TOKEN_EXPIRED.getMessage());
         }
 
         // Generate new access token

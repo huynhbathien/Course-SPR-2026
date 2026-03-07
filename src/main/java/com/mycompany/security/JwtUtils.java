@@ -9,13 +9,14 @@ import java.util.Date;
 import javax.crypto.SecretKey;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Component;
 import jakarta.annotation.PostConstruct;
 
+import com.mycompany.config.JwtProperties;
+import com.mycompany.config.TokenProperties;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumRole;
 import com.mycompany.repository.UserRepository;
@@ -32,16 +33,13 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class JwtUtils {
 
-    @Value("${jwt.secret-file}")
-    String jwtSecretFile;
-
-    @Value("${token.access-token-expiration:1800}")
-    long accessTokenExpirationSeconds; // in seconds (30 minutes default)
-
-    @Value("${token.refresh-token-expiration:604800}")
-    long refreshTokenExpirationSeconds; // in seconds (7 days default)
-
     SecretKey secretKey;
+
+    @Autowired
+    JwtProperties jwtProperties;
+
+    @Autowired
+    TokenProperties tokenProperties;
 
     @Autowired
     UserRepository userRepository;
@@ -60,6 +58,7 @@ public class JwtUtils {
         }
         String secretToUse = null;
 
+        String jwtSecretFile = jwtProperties.getSecretFile();
         if (jwtSecretFile != null && !jwtSecretFile.isEmpty()) {
             try {
                 String fileSecret = Files.readString(Paths.get(jwtSecretFile)).trim();
@@ -97,7 +96,9 @@ public class JwtUtils {
     public String generateToken(String userName, String email) {
         var token = Jwts.builder()
                 .subject(userName)
-                .expiration(new Date((new Date()).getTime() + accessTokenExpirationSeconds * 1000)) // Convert to ms
+                .expiration(new Date((new Date()).getTime() + tokenProperties.getAccessTokenExpiration() * 1000)) // Convert
+                                                                                                                  // to
+                                                                                                                  // ms
                 .issuedAt(new Date())
                 .signWith(readJwtSecret());
         if (email != null) {
@@ -109,7 +110,9 @@ public class JwtUtils {
     public String generateRefreshToken(String userName) {
         return Jwts.builder()
                 .subject(userName)
-                .expiration(new Date((new Date()).getTime() + refreshTokenExpirationSeconds * 1000)) // Convert to ms
+                .expiration(new Date((new Date()).getTime() + tokenProperties.getRefreshTokenExpiration() * 1000)) // Convert
+                                                                                                                   // to
+                                                                                                                   // ms
                 .issuedAt(new Date())
                 .claim("type", "refresh")
                 .signWith(readJwtSecret())

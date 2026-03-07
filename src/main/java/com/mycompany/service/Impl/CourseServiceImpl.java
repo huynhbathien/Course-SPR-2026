@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -17,6 +19,7 @@ import com.mycompany.enums.EnumError;
 import com.mycompany.mapstruct.CourseMapper;
 import com.mycompany.repository.CourseRepository;
 import com.mycompany.service.CourseService;
+import com.mycompany.util.QueryUtils;
 
 import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
@@ -114,6 +117,15 @@ public class CourseServiceImpl implements CourseService {
             courseGroupResponses.add(groupResponse);
         }
         return courseGroupResponses;
+    }
+
+    @Override
+    public Page<CourseResponse> searchCourses(String keyword, Pageable pageable) {
+        if (keyword == null || keyword.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Search keyword cannot be empty");
+        }
+        String escaped = QueryUtils.escapeLikeKeyword(keyword.trim());
+        return courseRepository.searchByKeyword(escaped, pageable).map(courseMapper::toCourseResponse);
     }
 
     /**
