@@ -71,4 +71,7 @@ public class UserEntity extends BaseEntity implements Serializable {
 
         @Column(columnDefinition = "TEXT")
         private String refreshToken;
+
+        @Column(nullable = false)
+        private boolean emailVerified = true;
 }

@@ -48,6 +48,12 @@ public enum EnumAuthError {
     OAUTH2_INVALID_PROVIDER(7002, "Invalid OAuth2 provider"),
     OAUTH2_USER_EXTRACTION_FAILED(7003, "Failed to extract user information from OAuth2"),
 
+    // OTP errors
+    OTP_INVALID(8001, "Invalid OTP code"),
+    OTP_EXPIRED(8002, "OTP has expired. Please request a new one."),
+    OTP_NOT_FOUND(8003, "OTP not found or already used"),
+    EMAIL_NOT_VERIFIED(8004, "Email address is not verified. Please check your email for the OTP."),
+
     // General errors
     UNAUTHORIZED(9001, "Unauthorized access"),
     FORBIDDEN(9002, "Forbidden"),

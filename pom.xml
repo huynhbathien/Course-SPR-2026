@@ -143,6 +143,12 @@
             <version>33.0.0-jre</version>
         </dependency>
 
+        <!-- Email -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-mail</artifactId>
+        </dependency>
+
         <!-- JWT Token Support -->
         <dependency>
             <groupId>io.jsonwebtoken</groupId>
