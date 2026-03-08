@@ -34,8 +34,8 @@ public class OtpServiceImpl implements OtpService {
 
     @Override
     @Transactional
-    public void generateAndSendOtp(String email, OtpType otpType) { // Remove any previous unused OTPs for this email +
-                                                                    // type
+    public void generateAndSendOtp(String email, OtpType otpType) {
+        // Remove all previous OTPs for this email + type before issuing a new one
         otpRepository.deleteByEmailAndOtpType(email, otpType);
 
         String otpCode = generateOtpCode();

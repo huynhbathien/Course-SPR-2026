@@ -116,7 +116,6 @@ public class AuthServiceImpl implements AuthService {
     }
 
     // --- Verify email & auto-login -----------------------------------------------
-
     @Override
     @Transactional
     public Map<String, String> verifyEmailAndLogin(VerifyOtpRequestDTO dto) {
