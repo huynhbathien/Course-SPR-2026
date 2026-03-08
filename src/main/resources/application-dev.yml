@@ -17,8 +17,8 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect
-        '[format_sql]': true
-        '[use_sql_comments]': true
+        "[format_sql]": true
+        "[use_sql_comments]": true
 
   # Jackson Configuration
   jackson:
@@ -38,7 +38,7 @@ spring:
             scope:
               - email
               - profile
-            redirect-uri: ${GOOGLE_REDIRECT_URI:http://localhost:8080/login/oauth2/code/google}
+            redirect-uri: ${GOOGLE_REDIRECT_URI:https://localhost:8080/login/oauth2/code/google}
 
 # JWT Configuration
 jwt:
@@ -56,11 +56,11 @@ server:
 logging:
   level:
     root: INFO
-    '[com.mycompany]': DEBUG
-    '[org.springframework.web]': DEBUG
-    '[org.springframework.security]': DEBUG
-    '[org.hibernate.SQL]': DEBUG
-    '[org.hibernate.type.descriptor.sql.BasicBinder]': TRACE
+    "[com.mycompany]": DEBUG
+    "[org.springframework.web]": DEBUG
+    "[org.springframework.security]": DEBUG
+    "[org.hibernate.SQL]": DEBUG
+    "[org.hibernate.type.descriptor.sql.BasicBinder]": TRACE
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
@@ -68,4 +68,3 @@ logging:
     name: logs/application.log
     max-size: 10MB
     max-history: 10
-

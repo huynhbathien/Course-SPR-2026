@@ -37,6 +37,21 @@ spring:
           min-idle: 0
           max-wait: -1ms
 
+  # Mail Configuration
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+        debug: false
+
   # Jackson Configuration
   jackson:
     serialization:
@@ -75,6 +90,10 @@ jwt:
 token:
   access-token-expiration: ${TOKEN_ACCESS_EXPIRATION:1800} # 30 minutes (15-30 minutes recommended)
   refresh-token-expiration: ${TOKEN_REFRESH_EXPIRATION:604800} # 7 days (7-30 days recommended)
+
+# OTP Configuration
+otp:
+  expiry-minutes: ${OTP_EXPIRY_MINUTES:10} # OTP valid for 10 minutes
 
 # Server Configuration
 server:
