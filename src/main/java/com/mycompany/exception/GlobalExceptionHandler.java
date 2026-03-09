@@ -13,6 +13,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.mycompany.dto.APIResponse;
 import com.mycompany.enums.EnumAuthError;
+import com.mycompany.enums.EnumError;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -95,5 +96,50 @@ public class GlobalExceptionHandler {
                                                 status.value(),
                                                 status.toString(),
                                                 ex.getReason()));
+        }
+
+        @ExceptionHandler(AppException.class)
+        public ResponseEntity<APIResponse<Object>> handleAppException(AppException ex) {
+                log.warn("AppException: code={}, message={}", ex.getCode(), ex.getMessage());
+                HttpStatus status = resolveHttpStatus(ex.getCode());
+                return ResponseEntity.status(status)
+                                .body(APIResponse.error(
+                                                ex.getCode(),
+                                                ex.getMessage(),
+                                                null));
+        }
+
+        /**
+         * Maps application error codes to semantically correct HTTP status codes.
+         * NOT_FOUND (404): resource does not exist.
+         * CONFLICT (409): resource already in the requested state.
+         * Default (400): bad request / invalid input.
+         */
+        private HttpStatus resolveHttpStatus(int code) {
+                // 404 — resource not found
+                if (code == EnumError.COURSE_NOT_FOUND.getCode()
+                                || code == EnumError.LESSON_NOT_FOUND.getCode()
+                                || code == EnumError.USER_NOT_FOUND.getCode()
+                                || code == EnumAuthError.USER_NOT_FOUND.getCode()) {
+                        return HttpStatus.NOT_FOUND;
+                }
+                // 409 — conflict / already in requested state
+                if (code == EnumError.COURSE_ALREADY_PUBLISHED.getCode()
+                                || code == EnumError.COURSE_ALREADY_DRAFT.getCode()
+                                || code == EnumError.COURSE_ALREADY_EXISTS.getCode()
+                                || code == EnumError.LESSON_ALREADY_EXISTS.getCode()) {
+                        return HttpStatus.CONFLICT;
+                }
+                return HttpStatus.BAD_REQUEST;
+        }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<APIResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+                log.warn("IllegalArgumentException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(APIResponse.error(
+                                                400,
+                                                "Bad request",
+                                                ex.getMessage()));
         }
 }

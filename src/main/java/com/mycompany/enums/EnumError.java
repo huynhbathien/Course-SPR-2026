@@ -13,8 +13,13 @@ public enum EnumError {
     // Lesson Error Enums
     LESSON_NOT_FOUND(321, "Lesson not found"),
     LESSON_ALREADY_EXISTS(322, "Lesson already exists with title"),
-    LESSON_REQUIRE_NOT_FOUND(323, "Lesson require not found");
-    ;
+    LESSON_REQUIRE_NOT_FOUND(323, "Lesson require not found"),
+
+    // Admin Error Enums
+    USER_NOT_FOUND(401, "User not found"),
+    INVALID_ROLE(402, "Invalid role specified"),
+    COURSE_ALREADY_PUBLISHED(411, "Course is already published"),
+    COURSE_ALREADY_DRAFT(412, "Course is already in draft");
 
     private int code;
     private String message;

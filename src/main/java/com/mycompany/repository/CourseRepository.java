@@ -1,5 +1,7 @@
 package com.mycompany.repository;
 
+import com.mycompany.enums.EnumCourseStatus;
+
 import com.mycompany.entity.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,4 +30,20 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("Select c from Course c JOIN FETCH c.type")
     List<Course> findAllWithType();
+
+    // Admin queries
+    Page<Course> findAll(Pageable pageable);
+
+    Page<Course> findByStatus(EnumCourseStatus status, Pageable pageable);
+
+    long countByStatus(EnumCourseStatus status);
+
+    /**
+     * Top N courses by active enrollment count — single GROUP BY query (no N+1).
+     * Returns Object[]{courseId, courseTitle, enrollmentCount}.
+     */
+    @Query("SELECT c.id, c.title, COUNT(uc) FROM Course c " +
+            "LEFT JOIN c.userCourses uc ON uc.isActive = true " +
+            "GROUP BY c.id, c.title ORDER BY COUNT(uc) DESC")
+    List<Object[]> findTopCoursesByEnrollment(Pageable pageable);
 }
