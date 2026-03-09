@@ -96,4 +96,24 @@ public class GlobalExceptionHandler {
                                                 status.toString(),
                                                 ex.getReason()));
         }
+
+        @ExceptionHandler(AppException.class)
+        public ResponseEntity<APIResponse<Object>> handleAppException(AppException ex) {
+                log.warn("AppException: code={}, message={}", ex.getCode(), ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(APIResponse.error(
+                                                ex.getCode(),
+                                                ex.getMessage(),
+                                                ex.getMessage()));
+        }
+
+        @ExceptionHandler(IllegalArgumentException.class)
+        public ResponseEntity<APIResponse<Object>> handleIllegalArgumentException(IllegalArgumentException ex) {
+                log.warn("IllegalArgumentException: {}", ex.getMessage());
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                .body(APIResponse.error(
+                                                400,
+                                                "Bad request",
+                                                ex.getMessage()));
+        }
 }

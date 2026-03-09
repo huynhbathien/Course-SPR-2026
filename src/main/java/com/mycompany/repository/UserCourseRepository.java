@@ -32,4 +32,14 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
      * Lấy danh sách user đã mua course
      */
     List<UserCourse> findByCourseAndIsActiveTrue(Course course);
+
+    /**
+     * Đếm số enrollment active của một course
+     */
+    long countByCourseAndIsActiveTrue(Course course);
+
+    /**
+     * Tổng số enrollment active
+     */
+    long countByIsActiveTrue();
 }

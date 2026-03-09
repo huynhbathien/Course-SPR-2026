@@ -27,6 +27,12 @@ public enum EnumSuccess {
     LESSON_UPDATE_SUCCESS(311, "Lesson updated successfully"),
     LESSON_DELETION_SUCCESS(312, "Lesson deleted successfully"),
     LESSON_COMPLETION_SUCCESS(313, "Lesson completed successfully"),
+
+    // Admin Successes Enums
+    ADMIN_USER_STATUS_UPDATED(400, "User status updated successfully"),
+    ADMIN_USER_ROLE_UPDATED(401, "User role updated successfully"),
+    ADMIN_COURSE_PUBLISHED(410, "Course published successfully"),
+    ADMIN_COURSE_UNPUBLISHED(411, "Course unpublished successfully"),
     ;
 
     String message;

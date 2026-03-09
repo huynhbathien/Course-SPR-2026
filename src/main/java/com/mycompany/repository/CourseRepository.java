@@ -1,5 +1,7 @@
 package com.mycompany.repository;
 
+import com.mycompany.enums.EnumCourseStatus;
+
 import com.mycompany.entity.Course;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,4 +30,11 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     @Query("Select c from Course c JOIN FETCH c.type")
     List<Course> findAllWithType();
+
+    // Admin queries
+    Page<Course> findAll(Pageable pageable);
+
+    Page<Course> findByStatus(EnumCourseStatus status, Pageable pageable);
+
+    long countByStatus(EnumCourseStatus status);
 }
