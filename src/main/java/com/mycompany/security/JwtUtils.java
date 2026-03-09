@@ -33,6 +33,8 @@ import lombok.extern.slf4j.Slf4j;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class JwtUtils {
 
+    private static final String PROVIDER_GOOGLE = "google";
+
     SecretKey secretKey;
 
     @Autowired
@@ -185,7 +187,7 @@ public class JwtUtils {
         UserEntity user = null;
 
         // Try to find existing user by OAuth2 ID first
-        if ("google".equalsIgnoreCase(registrationId)) {
+        if (PROVIDER_GOOGLE.equalsIgnoreCase(registrationId)) {
             user = userRepository.findByGoogleId(providerId).orElse(null);
         }
 
@@ -207,7 +209,7 @@ public class JwtUtils {
             user.setEmailVerified(true);
             user.setRole(EnumRole.USER.getRoleName());
 
-            if ("google".equalsIgnoreCase(registrationId)) {
+            if (PROVIDER_GOOGLE.equalsIgnoreCase(registrationId)) {
                 user.setGoogleId(providerId);
             }
         } else {
@@ -216,13 +218,16 @@ public class JwtUtils {
             if (name != null && !name.isEmpty()) {
                 user.setFullName(name);
             }
-            if ("google".equalsIgnoreCase(registrationId)
+            if (PROVIDER_GOOGLE.equalsIgnoreCase(registrationId)
                     && (user.getGoogleId() == null || user.getGoogleId().isEmpty())) {
                 user.setGoogleId(providerId);
             }
         }
 
-        // Update refresh token if available
+        // Persist Google refresh token in DB for future use cases that require
+        // calling Google APIs on behalf of the user (e.g. calendar sync, Drive access)
+        // without asking the user to re-authenticate.
+        // No concrete use case yet, but stored now to avoid a DB migration later.
         if (authorizedClient != null && authorizedClient.getRefreshToken() != null) {
             user.setRefreshToken(authorizedClient.getRefreshToken().getTokenValue());
         }
@@ -236,7 +241,7 @@ public class JwtUtils {
     private String getProviderSpecificId(String registrationId, OAuth2User oAuth2User) {
         try {
             switch (registrationId.toLowerCase()) {
-                case "google":
+                case PROVIDER_GOOGLE:
                     String sub = oAuth2User.getAttribute("sub");
                     if (sub != null && !sub.isEmpty()) {
                         return sub;

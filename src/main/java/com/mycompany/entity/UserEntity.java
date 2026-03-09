@@ -69,6 +69,12 @@ public class UserEntity extends BaseEntity implements Serializable {
         @Column(length = 50)
         private String provider; // google, github, facebook, etc.
 
+        /**
+         * Google refresh token — stored for future use cases that require calling
+         * Google APIs on behalf of the user (e.g. calendar sync, Drive access)
+         * without asking the user to re-authenticate.
+         * No concrete use case yet, but retained to avoid a DB migration later.
+         */
         @Column(columnDefinition = "TEXT")
         private String refreshToken;
 

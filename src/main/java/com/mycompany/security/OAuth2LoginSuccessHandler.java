@@ -12,6 +12,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mycompany.security.CustomUserDetailsService.CustomUserDetails;
 import com.mycompany.service.TokenRedisService;
 
 import jakarta.servlet.ServletException;
@@ -25,6 +26,14 @@ import java.util.Map;
 @Slf4j
 @Component
 public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
+
+    /**
+     * Retained for future extensibility: can be used to call Google APIs
+     * (Calendar, Drive, People API) on behalf of the user via
+     * authorizedClient.getAccessToken().
+     * Currently the system uses Google only for identity verification (authentication),
+     * not for delegated Google API calls (authorization).
+     */
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final JwtUtils jwtUtils;
     private final ObjectMapper objectMapper;
@@ -52,6 +61,10 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 throw new IllegalArgumentException("Unable to extract username from OAuth2 principal");
             }
 
+            // authorizedClient holds Google's access token and refresh token.
+            // Passed into processOAuth2User to persist the Google RT in the DB,
+            // enabling future Google API calls (e.g. avatar sync, calendar)
+            // without requiring a refactor.
             OAuth2AuthorizedClient authorizedClient = authorizedClientService.loadAuthorizedClient(registrationId,
                     username);
 
@@ -64,11 +77,11 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
             // Get userId from userDetails
             Long userId = null;
-            if (userDetails instanceof com.mycompany.security.CustomUserDetailsService.CustomUserDetails) {
-                userId = ((com.mycompany.security.CustomUserDetailsService.CustomUserDetails) userDetails).getUserId();
+            if (userDetails instanceof CustomUserDetails) {
+                userId = ((CustomUserDetails) userDetails).getUserId();
             }
 
-            // Lưu refresh token vào Redis (server-side) - không gửi cho client
+            // Store system JWT refresh token in Redis (server-side) - never sent to client
             tokenRedisService.saveRefreshToken(userDetails.getUsername(), userId, refreshToken);
             log.debug("Refresh token saved to Redis for user: {} (userId: {})", userDetails.getUsername(), userId);
 
