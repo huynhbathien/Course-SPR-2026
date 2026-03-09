@@ -12,7 +12,10 @@ public enum EnumSuccess {
 
     // Authentication Successes Enums
     LOGIN_SUCCESS(201, "Login successful"),
-    REGISTRATION_SUCCESS(202, "Registration successful"),
+    REGISTRATION_SUCCESS(202, "Registration successful. Please verify your email."),
+    EMAIL_VERIFIED(203, "Email verified successfully"),
+    OTP_SENT(204, "OTP sent successfully"),
+    PASSWORD_RESET_SUCCESS(205, "Password reset successfully"),
 
     // Course Successes Enums
     COURSE_UPDATE_SUCCESS(300, "Course updated successfully"),

@@ -204,6 +204,7 @@ public class JwtUtils {
             user.setPassword("");
             user.setProvider(registrationId);
             user.setActive(true);
+            user.setEmailVerified(true);
             user.setRole(EnumRole.USER.getRoleName());
 
             if ("google".equalsIgnoreCase(registrationId)) {
