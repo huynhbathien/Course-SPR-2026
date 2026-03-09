@@ -37,4 +37,13 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
     Page<Course> findByStatus(EnumCourseStatus status, Pageable pageable);
 
     long countByStatus(EnumCourseStatus status);
+
+    /**
+     * Top N courses by active enrollment count — single GROUP BY query (no N+1).
+     * Returns Object[]{courseId, courseTitle, enrollmentCount}.
+     */
+    @Query("SELECT c.id, c.title, COUNT(uc) FROM Course c " +
+            "LEFT JOIN c.userCourses uc ON uc.isActive = true " +
+            "GROUP BY c.id, c.title ORDER BY COUNT(uc) DESC")
+    List<Object[]> findTopCoursesByEnrollment(Pageable pageable);
 }

@@ -39,6 +39,11 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
     long countByCourseAndIsActiveTrue(Course course);
 
     /**
+     * Count active enrollments for a user (avoids lazy-loading getUserCourses())
+     */
+    long countByUser(UserEntity user);
+
+    /**
      * Tổng số enrollment active
      */
     long countByIsActiveTrue();

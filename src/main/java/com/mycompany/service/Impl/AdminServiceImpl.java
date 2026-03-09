@@ -1,10 +1,10 @@
 package com.mycompany.service.Impl;
 
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +21,7 @@ import com.mycompany.enums.EnumCourseStatus;
 import com.mycompany.enums.EnumRole;
 import com.mycompany.exception.AppException;
 import com.mycompany.repository.CourseRepository;
+import com.mycompany.repository.LessonRepository;
 import com.mycompany.repository.UserCourseRepository;
 import com.mycompany.repository.UserRepository;
 import com.mycompany.service.AdminService;
@@ -39,6 +40,7 @@ public class AdminServiceImpl implements AdminService {
     UserRepository userRepository;
     CourseRepository courseRepository;
     UserCourseRepository userCourseRepository;
+    LessonRepository lessonRepository;
 
     // ─────────────────────────── User Management ───────────────────────────
 
@@ -82,17 +84,17 @@ public class AdminServiceImpl implements AdminService {
     public AdminUserResponse updateUserRole(Long userId, UpdateUserRoleRequest request) {
         UserEntity user = findUserOrThrow(userId);
 
-        // Validate role is a recognised EnumRole value
+        // Normalize: accept both "ADMIN" and "ROLE_ADMIN" from client
         String normalised = request.getRole().toUpperCase();
-        boolean valid = false;
-        for (EnumRole r : EnumRole.values()) {
-            if (r.name().equals(normalised)) {
-                valid = true;
-                break;
-            }
+        if (normalised.startsWith("ROLE_")) {
+            normalised = normalised.substring(5);
         }
-        if (!valid) {
-            throw new IllegalArgumentException("Invalid role: " + request.getRole());
+        try {
+            EnumRole.valueOf(normalised);
+        } catch (IllegalArgumentException e) {
+            throw new AppException(
+                    com.mycompany.enums.EnumError.INVALID_ROLE.getCode(),
+                    com.mycompany.enums.EnumError.INVALID_ROLE.getMessage());
         }
 
         user.setRole(EnumRole.valueOf(normalised).getRoleName());
@@ -158,15 +160,14 @@ public class AdminServiceImpl implements AdminService {
 
         long totalActiveEnrollments = userCourseRepository.countByIsActiveTrue();
 
-        // Top 5 courses by enrollment
-        List<CourseEnrollmentStat> topCourses = courseRepository.findAll().stream()
-                .map(c -> CourseEnrollmentStat.builder()
-                        .courseId(c.getId())
-                        .courseTitle(c.getTitle())
-                        .enrollmentCount(userCourseRepository.countByCourseAndIsActiveTrue(c))
+        // Top 5 courses by enrollment — single GROUP BY query (avoids N+1)
+        List<CourseEnrollmentStat> topCourses = courseRepository.findTopCoursesByEnrollment(PageRequest.of(0, 5))
+                .stream()
+                .map(row -> CourseEnrollmentStat.builder()
+                        .courseId((Long) row[0])
+                        .courseTitle((String) row[1])
+                        .enrollmentCount((Long) row[2])
                         .build())
-                .sorted(Comparator.comparingLong(CourseEnrollmentStat::getEnrollmentCount).reversed())
-                .limit(5)
                 .collect(Collectors.toList());
 
         return AdminStatsResponse.builder()
@@ -210,7 +211,7 @@ public class AdminServiceImpl implements AdminService {
                 .emailVerified(user.isEmailVerified())
                 .provider(user.getProvider())
                 .avatarUrl(user.getAvatarUrl())
-                .enrolledCourses(user.getUserCourses().size())
+                .enrolledCourses((int) userCourseRepository.countByUser(user))
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
                 .build();
@@ -224,7 +225,7 @@ public class AdminServiceImpl implements AdminService {
                 .type(course.getType() != null ? course.getType().getCode() : null)
                 .linkImg(course.getLinkImg())
                 .description(course.getDescription())
-                .totalLessons(course.getLessons().size())
+                .totalLessons((int) lessonRepository.countByCourse(course))
                 .status(course.getStatus())
                 .enrollmentCount(enrollmentCount)
                 .createdAt(course.getCreatedAt())

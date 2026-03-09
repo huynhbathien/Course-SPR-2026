@@ -34,7 +34,7 @@ public class Course extends BaseEntity {
         private CourseType type;
 
         @Column(name = "link_Img")
-        String linkImg;
+        private String linkImg;
 
         @Column(columnDefinition = "TEXT")
         private String description;

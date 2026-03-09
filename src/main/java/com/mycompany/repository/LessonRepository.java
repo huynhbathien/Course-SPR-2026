@@ -15,6 +15,9 @@ import java.util.Optional;
 @Repository
 public interface LessonRepository extends JpaRepository<Lesson, Long> {
 
+    /** Count lessons for a course (avoids lazy-loading getLessons()) */
+    long countByCourse(Course course);
+
     Optional<Lesson> findByTitle(String title);
 
     boolean existsByTitle(String title);
