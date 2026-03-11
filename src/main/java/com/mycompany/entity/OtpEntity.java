@@ -16,8 +16,8 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "otps", indexes = {
-        @Index(name = "idx_otp_email_type", columnList = "email, otpType"),
-        @Index(name = "idx_otp_expires_at", columnList = "expiresAt")
+        @Index(name = "idx_otp_email_type", columnList = "email, otp_type"),
+        @Index(name = "idx_otp_expires_at", columnList = "expires_at")
 })
 @Getter
 @Setter

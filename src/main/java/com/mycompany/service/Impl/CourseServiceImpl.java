@@ -128,6 +128,16 @@ public class CourseServiceImpl implements CourseService {
         return courseRepository.searchByKeyword(escaped, pageable).map(courseMapper::toCourseResponse);
     }
 
+    @Override
+    public Page<CourseResponse> searchCourses(String keyword, String typeCode, Pageable pageable) {
+        String escapedKeyword = (keyword != null && !keyword.isBlank())
+                ? QueryUtils.escapeLikeKeyword(keyword.trim())
+                : null;
+        String normalizedType = (typeCode != null && !typeCode.isBlank()) ? typeCode.trim() : null;
+        return courseRepository.searchByKeywordAndType(escapedKeyword, normalizedType, pageable)
+                .map(courseMapper::toCourseResponse);
+    }
+
     /**
      * User mua khóa học - tạo record UserCourse với isActive = true
      */

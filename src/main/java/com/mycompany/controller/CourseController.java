@@ -74,11 +74,12 @@ public class CourseController {
     @PreAuthorize("isAuthenticated()")
     @GetMapping("/search")
     public APIResponse<Page<CourseResponse>> searchCourses(
-            @RequestParam String keyword,
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String type,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int size) {
         Pageable pageable = PageRequest.of(page, Math.min(size, 100));
-        Page<CourseResponse> data = courseService.searchCourses(keyword, pageable);
+        Page<CourseResponse> data = courseService.searchCourses(keyword, type, pageable);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 
