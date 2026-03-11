@@ -19,7 +19,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "lessons", indexes = {
-        @Index(name = "idx_lesson_title", columnList = "title", unique = true),
+        @Index(name = "idx_lesson_title", columnList = "title"),
         @Index(name = "idx_lesson_course", columnList = "course_id")
 })
 @Getter

@@ -16,7 +16,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "course_types", indexes = {
-    @Index(name = "idx_course_type_code", columnList = "code", unique = true)
+    @Index(name = "idx_course_type_code", columnList = "code")
 })
 @Getter
 @Setter
@@ -30,7 +30,7 @@ public class CourseType extends BaseEntity {
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "courseType", cascade = {
+    @OneToMany(mappedBy = "type", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE,
             CascadeType.REMOVE }, orphanRemoval = true)
     private List<Course> courses;

@@ -23,7 +23,7 @@ import lombok.Setter;
 
 @Entity
 @Table(name = "courses", indexes = {
-        @Index(name = "idx_course_title", columnList = "title", unique = true),
+        @Index(name = "idx_course_title", columnList = "title"),
         @Index(name = "idx_course_status", columnList = "status"),
         @Index(name = "idx_course_type", columnList = "course_type_id")
 })

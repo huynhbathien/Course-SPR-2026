@@ -20,7 +20,7 @@ public interface CourseRepository extends JpaRepository<Course, Long> {
 
     boolean existsByTitle(String title);
 
-    List<Course> findByType(String type);
+    List<Course> findByTypeCode(String typeCode);
 
     @Query("SELECT c FROM Course c WHERE c.title LIKE %:keyword% ESCAPE '!'")
     Page<Course> searchByKeyword(@Param("keyword") String keyword, Pageable pageable);

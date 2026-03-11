@@ -130,10 +130,11 @@ public class CourseServiceImpl implements CourseService {
 
     @Override
     public Page<CourseResponse> searchCourses(String keyword, String typeCode, Pageable pageable) {
-        String escaped = (keyword != null && !keyword.isBlank())
+        String escapedKeyword = (keyword != null && !keyword.isBlank())
                 ? QueryUtils.escapeLikeKeyword(keyword.trim())
                 : null;
-        return courseRepository.searchByKeywordAndType(escaped, typeCode, pageable)
+        String normalizedType = (typeCode != null && !typeCode.isBlank()) ? typeCode.trim() : null;
+        return courseRepository.searchByKeywordAndType(escapedKeyword, normalizedType, pageable)
                 .map(courseMapper::toCourseResponse);
     }
 
