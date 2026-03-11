@@ -23,6 +23,8 @@ public interface CourseService {
 
     Page<CourseResponse> searchCourses(String keyword, Pageable pageable);
 
+    Page<CourseResponse> searchCourses(String keyword, String typeCode, Pageable pageable);
+
     /**
      * User mua khóa học - activate course
      */
