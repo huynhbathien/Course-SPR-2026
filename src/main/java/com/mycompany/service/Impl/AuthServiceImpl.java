@@ -4,9 +4,9 @@ import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mycompany.dto.request.ForgotPasswordRequestDTO;
@@ -28,12 +28,14 @@ import com.mycompany.service.OtpService;
 import com.mycompany.service.TokenRedisService;
 
 import jakarta.transaction.Transactional;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Validated
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = lombok.AccessLevel.PRIVATE)
 public class AuthServiceImpl implements AuthService {
@@ -47,7 +49,7 @@ public class AuthServiceImpl implements AuthService {
     OtpService otpService;
 
     @Override
-    public Map<String, String> login(LoginRequestDTO dto, String clientIp) {
+    public Map<String, String> login(@Valid LoginRequestDTO dto, String clientIp) {
         if (loginAttemptService.isBlocked(clientIp)) {
             log.warn("Blocked login attempt from IP: {}", clientIp);
             throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
@@ -55,16 +57,9 @@ public class AuthServiceImpl implements AuthService {
         }
 
         String username = dto.getUsername();
-        UserEntity user;
-        try {
-            user = userRepository.findByUsername(username)
-                    .orElseThrow(() -> new UsernameNotFoundException(EnumAuthError.USER_NOT_FOUND.getMessage()));
-        } catch (RuntimeException e) {
-            loginAttemptService.loginFailed(clientIp);
-            throw e;
-        }
+        UserEntity user = userRepository.findByUsername(username).orElse(null);
 
-        if (!passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
+        if (user == null || !passwordEncoder.matches(dto.getPassword(), user.getPassword())) {
             loginAttemptService.loginFailed(clientIp);
             int remaining = loginAttemptService.getRemainingAttempts(clientIp);
             log.warn("Invalid credentials for user '{}' from IP '{}'. Remaining attempts: {}",
@@ -86,7 +81,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public Map<String, String> register(RegisterRequestDTO dto) {
+    public Map<String, String> register(@Valid RegisterRequestDTO dto) {
         String username = dto.getUsername();
         String email = dto.getEmail();
 
@@ -118,7 +113,7 @@ public class AuthServiceImpl implements AuthService {
     // --- Verify email & auto-login -----------------------------------------------
     @Override
     @Transactional
-    public Map<String, String> verifyEmailAndLogin(VerifyOtpRequestDTO dto) {
+    public Map<String, String> verifyEmailAndLogin(@Valid VerifyOtpRequestDTO dto) {
         otpService.verifyOtp(dto.getEmail(), dto.getOtpCode(), OtpType.EMAIL_VERIFICATION);
 
         UserEntity user = userRepository.findByEmail(dto.getEmail())
@@ -135,7 +130,7 @@ public class AuthServiceImpl implements AuthService {
     // --- Resend OTP --------------------------------------------------------------
 
     @Override
-    public void resendOtp(ResendOtpRequestDTO dto) {
+    public void resendOtp(@Valid ResendOtpRequestDTO dto) {
         UserEntity user = userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         EnumAuthError.USER_NOT_FOUND.getMessage()));
@@ -151,7 +146,7 @@ public class AuthServiceImpl implements AuthService {
     // --- Forgot password ---------------------------------------------------------
 
     @Override
-    public void forgotPassword(ForgotPasswordRequestDTO dto) {
+    public void forgotPassword(@Valid ForgotPasswordRequestDTO dto) {
         userRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
                         EnumAuthError.USER_NOT_FOUND.getMessage()));
@@ -164,7 +159,7 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     @Transactional
-    public void resetPassword(ResetPasswordRequestDTO dto) {
+    public void resetPassword(@Valid ResetPasswordRequestDTO dto) {
         if (!dto.getNewPassword().equals(dto.getConfirmPassword())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
                     EnumAuthError.PASSWORD_MISMATCH.getMessage());

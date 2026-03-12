@@ -8,6 +8,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
+
+import jakarta.validation.Valid;
 
 import com.mycompany.dto.request.UpdateUserRoleRequest;
 import com.mycompany.dto.request.UpdateUserStatusRequest;
@@ -33,6 +36,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Validated
 @RequiredArgsConstructor
 @FieldDefaults(makeFinal = true, level = AccessLevel.PRIVATE)
 public class AdminServiceImpl implements AdminService {
@@ -71,7 +75,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public AdminUserResponse updateUserStatus(Long userId, UpdateUserStatusRequest request) {
+    public AdminUserResponse updateUserStatus(Long userId, @Valid UpdateUserStatusRequest request) {
         UserEntity user = findUserOrThrow(userId);
         user.setActive(request.getActive());
         UserEntity saved = userRepository.save(user);
@@ -81,7 +85,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @Transactional
-    public AdminUserResponse updateUserRole(Long userId, UpdateUserRoleRequest request) {
+    public AdminUserResponse updateUserRole(Long userId, @Valid UpdateUserRoleRequest request) {
         UserEntity user = findUserOrThrow(userId);
 
         // Normalize: accept both "ADMIN" and "ROLE_ADMIN" from client
