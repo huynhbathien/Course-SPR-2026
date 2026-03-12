@@ -9,6 +9,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mycompany.dto.request.CourseRequest;
@@ -27,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Validated
 public class CourseServiceImpl implements CourseService {
 
     private final CourseRepository courseRepository;
@@ -63,7 +65,7 @@ public class CourseServiceImpl implements CourseService {
 
     @Transactional
     @Override
-    public CourseResponse updateCourse(Long courseId, CourseRequest courseData) {
+    public CourseResponse updateCourse(Long courseId, @Valid CourseRequest courseData) {
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(
                         () -> new ResponseStatusException(HttpStatus.NOT_FOUND,
