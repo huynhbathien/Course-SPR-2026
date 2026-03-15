@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 import com.mycompany.entity.UserEntity;
 import com.mycompany.enums.EnumAuthError;
 import com.mycompany.repository.UserRepository;
-import com.mycompany.service.TokenRedisService;
 import com.mycompany.service.UserService;
+import com.mycompany.service.UserSessionQueryService;
 
 import lombok.AccessLevel;
 import lombok.experimental.FieldDefaults;
@@ -21,11 +21,11 @@ import lombok.extern.slf4j.Slf4j;
 public class UserServiceImpl implements UserService {
 
     UserRepository userRepository;
-    TokenRedisService tokenRedisService;
+    UserSessionQueryService userSessionQueryService;
 
-    public UserServiceImpl(UserRepository userRepository, TokenRedisService tokenRedisService) {
+    public UserServiceImpl(UserRepository userRepository, UserSessionQueryService userSessionQueryService) {
         this.userRepository = userRepository;
-        this.tokenRedisService = tokenRedisService;
+        this.userSessionQueryService = userSessionQueryService;
     }
 
     @Override
@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         userInfo.put("updatedAt", user.getUpdatedAt());
 
         // Get session info from Redis
-        String sessionInfo = tokenRedisService.getUserSessionInfo(user.getUsername());
+        String sessionInfo = userSessionQueryService.getUserSessionInfo(user.getUsername());
         if (sessionInfo != null) {
             userInfo.put("sessionInfo", sessionInfo);
         }

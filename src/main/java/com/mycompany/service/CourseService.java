@@ -26,7 +26,7 @@ public interface CourseService {
     Page<CourseResponse> searchCourses(String keyword, String typeCode, Pageable pageable);
 
     /**
-     * User mua khóa học - activate course
+     * User purchases a course - activate course
      */
     // public CourseResponse purchaseCourse(Long userId, Long courseId);
 }

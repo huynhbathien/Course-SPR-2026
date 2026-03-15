@@ -141,7 +141,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     /**
-     * User mua khóa học - tạo record UserCourse với isActive = true
+     * User purchases a course - create UserCourse record with isActive = true
      */
     // @Transactional
     // public CourseResponse purchaseCourse(Long userId, Long courseId) {
@@ -153,7 +153,7 @@ public class CourseServiceImpl implements CourseService {
     // .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND,
     // EnumError.COURSE_NOT_FOUND.getMessage() + " with id: " + courseId));
 
-    // // Kiểm tra user đã mua khóa học này chưa
+    // // Check whether user already purchased this course
     // UserCourse userCourse =
     // userCourseRepository.findByUserIdAndCourseId(user.getId(), course.getId());
 
@@ -163,7 +163,7 @@ public class CourseServiceImpl implements CourseService {
     // courseId);
     // }
 
-    // // Tạo mới record UserCourse
+    // // Create new UserCourse record
 
     // return courseMapper.toCourseResponse(course);
     // }

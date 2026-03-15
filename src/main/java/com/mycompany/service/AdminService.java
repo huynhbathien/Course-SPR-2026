@@ -15,29 +15,29 @@ public interface AdminService {
     // ── User Management ──────────────────────────────────────────────────────
 
     /**
-     * Lấy danh sách tất cả user (có phân trang, lọc theo role/active).
+     * Get all users (paginated, optionally filtered by role/active).
      */
     Page<AdminUserResponse> getAllUsers(String role, Boolean active, Pageable pageable);
 
     /**
-     * Lấy thông tin chi tiết một user theo ID.
+     * Get detailed user information by ID.
      */
     AdminUserResponse getUserById(Long userId);
 
     /**
-     * Bật / tắt trạng thái active của user.
+     * Enable or disable a user's active status.
      */
     AdminUserResponse updateUserStatus(Long userId, UpdateUserStatusRequest request);
 
     /**
-     * Thay đổi role của user.
+     * Change a user's role.
      */
     AdminUserResponse updateUserRole(Long userId, UpdateUserRoleRequest request);
 
     // ── Course Management ─────────────────────────────────────────────────────
 
     /**
-     * Lấy danh sách course (có phân trang, lọc theo status).
+     * Get courses (paginated, optionally filtered by status).
      */
     Page<AdminCourseResponse> getAllCourses(EnumCourseStatus status, Pageable pageable);
 
@@ -54,7 +54,7 @@ public interface AdminService {
     // ── Statistics ────────────────────────────────────────────────────────────
 
     /**
-     * Lấy thống kê tổng quan cho admin dashboard.
+     * Get summary statistics for the admin dashboard.
      */
     AdminStatsResponse getDashboardStats();
 }

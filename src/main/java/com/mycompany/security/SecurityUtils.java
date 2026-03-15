@@ -4,7 +4,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /**
- * Utility class để lấy thông tin user hiện tại từ SecurityContext
+ * Utility class to retrieve current user information from SecurityContext
  */
 public class SecurityUtils {
 

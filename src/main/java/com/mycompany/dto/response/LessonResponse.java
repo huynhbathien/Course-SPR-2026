@@ -14,5 +14,5 @@ public class LessonResponse {
     private String title;
     private String content;
     private Long courseId;
-    private Long lessonRequireId; // ID của lesson phải hoàn thành trước
+    private Long lessonRequireId; // ID of prerequisite lesson
 }

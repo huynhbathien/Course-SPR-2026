@@ -17,7 +17,7 @@ import com.mycompany.repository.CourseTypeRepository;
 @Mapper(config = MapStructConfig.class)
 public abstract class CourseMapper {
 
-    // Sẽ được inject bởi Spring
+    // Injected by Spring
     protected CourseTypeRepository courseTypeRepository;
 
     @Mapping(target = "type", source = "type.code")
@@ -48,14 +48,14 @@ public abstract class CourseMapper {
     }
 
     /**
-     * Map String courseType code thành CourseType entity
+     * Map String courseType code to CourseType entity
      */
     @Named("mapStringToCourseType")
     protected CourseType mapStringToCourseType(String courseTypeCode) {
         if (courseTypeCode == null) {
             return null;
         }
-        // Tìm CourseType từ database bằng code
+        // Look up CourseType from database by code
         return courseTypeRepository.findByCode(courseTypeCode).orElse(null);
     }
 }

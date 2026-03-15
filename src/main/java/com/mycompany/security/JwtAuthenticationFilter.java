@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.mycompany.service.TokenRedisService;
+import com.mycompany.service.TokenBlacklistService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -28,7 +28,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     JwtUtils jwtUtils;
     CustomUserDetailsService customUserDetailsService;
-    TokenRedisService tokenRedisService;
+    TokenBlacklistService tokenBlacklistService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
@@ -39,7 +39,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             String token = authHeader.substring(7);
 
             // Check if token is blacklisted (revoked) - should NOT process if blacklisted
-            if (!tokenRedisService.isTokenBlacklisted(token)) {
+            if (!tokenBlacklistService.isTokenBlacklisted(token)) {
                 String userName = jwtUtils.getUserNameFromToken(token);
                 if (userName != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                     UserDetails userDetails = customUserDetailsService.loadUserByUsername(userName);

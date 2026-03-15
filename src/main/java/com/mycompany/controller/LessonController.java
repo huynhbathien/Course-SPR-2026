@@ -26,6 +26,7 @@ import com.mycompany.enums.EnumAuthError;
 import com.mycompany.enums.EnumSuccess;
 import com.mycompany.security.SecurityUtils;
 import com.mycompany.service.LessonService;
+import com.mycompany.service.LessonProgressService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ import lombok.experimental.FieldDefaults;
 public class LessonController {
 
     final LessonService lessonService;
+    final LessonProgressService lessonProgressService;
 
     /** Ensures the caller is either the resource owner or an ADMIN. */
     private void requireSelf(Long userId) {
@@ -89,7 +91,7 @@ public class LessonController {
     @PostMapping("/{userId}/lesson/{lessonId}/complete")
     public APIResponse<String> completeLesson(@PathVariable Long userId, @PathVariable Long lessonId) {
         requireSelf(userId);
-        String data = lessonService.completeLesson(userId, lessonId);
+        String data = lessonProgressService.completeLesson(userId, lessonId);
         return APIResponse.success(EnumSuccess.LESSON_COMPLETION_SUCCESS.getCode(),
                 EnumSuccess.LESSON_COMPLETION_SUCCESS.getMessage(), data);
     }
@@ -98,7 +100,7 @@ public class LessonController {
     @GetMapping("/user/{userId}/completed")
     public APIResponse<List<UserLessonResponse>> getUserCompletedLessons(@PathVariable Long userId) {
         requireSelf(userId);
-        List<UserLessonResponse> data = lessonService.getUserCompletedLessons(userId);
+        List<UserLessonResponse> data = lessonProgressService.getUserCompletedLessons(userId);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 
@@ -106,7 +108,7 @@ public class LessonController {
     @GetMapping("/user/{userId}/active")
     public APIResponse<List<UserLessonResponse>> getUserActiveLessons(@PathVariable Long userId) {
         requireSelf(userId);
-        List<UserLessonResponse> data = lessonService.getUserActiveLessons(userId);
+        List<UserLessonResponse> data = lessonProgressService.getUserActiveLessons(userId);
         return APIResponse.success(EnumSuccess.SUCCESS.getCode(), EnumSuccess.SUCCESS.getMessage(), data);
     }
 

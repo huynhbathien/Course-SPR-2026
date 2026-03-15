@@ -7,7 +7,6 @@ import org.springframework.data.domain.Pageable;
 
 import com.mycompany.dto.request.LessonRequest;
 import com.mycompany.dto.response.LessonResponse;
-import com.mycompany.dto.response.UserLessonResponse;
 
 public interface LessonService {
 
@@ -20,22 +19,6 @@ public interface LessonService {
     String deleteLesson(Long lessonId);
 
     List<LessonResponse> getLessonsByCourse(Long courseId);
-
-    /**
-     * Đánh dấu lesson là đã hoàn thành bởi user
-     * Nếu lesson có dependent lessons, sẽ activate chúng
-     */
-    String completeLesson(Long userId, Long lessonId);
-
-    /**
-     * Lấy danh sách lesson đã complete của user
-     */
-    List<UserLessonResponse> getUserCompletedLessons(Long userId);
-
-    /**
-     * Lấy danh sách lesson active của user
-     */
-    List<UserLessonResponse> getUserActiveLessons(Long userId);
 
     Page<LessonResponse> searchLessons(String keyword, Pageable pageable);
 
