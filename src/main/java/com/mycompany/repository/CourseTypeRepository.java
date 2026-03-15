@@ -11,17 +11,17 @@ import com.mycompany.entity.CourseType;
 public interface CourseTypeRepository extends JpaRepository<CourseType, Long> {
 
     /**
-     * Tìm CourseType theo code
+     * Find CourseType by code
      */
     Optional<CourseType> findByCode(String code);
 
     /**
-     * Kiểm tra code đã tồn tại chưa
+     * Check whether code already exists
      */
     boolean existsByCode(String code);
 
     /**
-     * Tìm CourseType theo description
+     * Find CourseType by description
      */
     Optional<CourseType> findByDescription(String description);
 }

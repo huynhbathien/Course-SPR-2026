@@ -14,27 +14,27 @@ import com.mycompany.entity.UserEntity;
 public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
 
     /**
-     * Tìm UserCourse bằng user và course
+     * Find UserCourse by user and course
      */
     Optional<UserCourse> findByUserAndCourse(UserEntity user, Course course);
 
     /**
-     * Lấy danh sách course active của user
+     * Get active courses of a user
      */
     List<UserCourse> findByUserAndIsActiveTrue(UserEntity user);
 
     /**
-     * Lấy tất cả course của user (active và inactive)
+     * Get all courses of a user (active and inactive)
      */
     List<UserCourse> findByUser(UserEntity user);
 
     /**
-     * Lấy danh sách user đã mua course
+     * Get users who have purchased the course
      */
     List<UserCourse> findByCourseAndIsActiveTrue(Course course);
 
     /**
-     * Đếm số enrollment active của một course
+     * Count active enrollments for a course
      */
     long countByCourseAndIsActiveTrue(Course course);
 
@@ -44,7 +44,7 @@ public interface UserCourseRepository extends JpaRepository<UserCourse, Long> {
     long countByUser(UserEntity user);
 
     /**
-     * Tổng số enrollment active
+     * Total number of active enrollments
      */
     long countByIsActiveTrue();
 }

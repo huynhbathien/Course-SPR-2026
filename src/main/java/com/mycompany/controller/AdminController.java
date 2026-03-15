@@ -42,7 +42,7 @@ public class AdminController {
 
     /**
      * GET /admin/users
-     * Lấy danh sách user có phân trang, lọc theo role và/hoặc active.
+     * Get paginated users, optionally filtered by role and/or active status.
      */
     @GetMapping("/users")
     public APIResponse<Page<AdminUserResponse>> getAllUsers(
@@ -59,7 +59,7 @@ public class AdminController {
 
     /**
      * GET /admin/users/{userId}
-     * Lấy thông tin chi tiết một user.
+     * Get detailed information for a single user.
      */
     @GetMapping("/users/{userId}")
     public APIResponse<AdminUserResponse> getUserById(@PathVariable Long userId) {
@@ -69,7 +69,7 @@ public class AdminController {
 
     /**
      * PUT /admin/users/{userId}/status
-     * Bật / tắt trạng thái active của user.
+     * Enable or disable a user's active status.
      */
     @PutMapping("/users/{userId}/status")
     public APIResponse<AdminUserResponse> updateUserStatus(
@@ -83,7 +83,7 @@ public class AdminController {
 
     /**
      * PUT /admin/users/{userId}/role
-     * Thay đổi role của user.
+     * Change a user's role.
      */
     @PutMapping("/users/{userId}/role")
     public APIResponse<AdminUserResponse> updateUserRole(
@@ -99,7 +99,7 @@ public class AdminController {
 
     /**
      * GET /admin/courses
-     * Lấy danh sách course, lọc theo status (DRAFT, PUBLISHED).
+     * Get courses, optionally filtered by status (DRAFT, PUBLISHED).
      */
     @GetMapping("/courses")
     public APIResponse<Page<AdminCourseResponse>> getAllCourses(
@@ -137,7 +137,7 @@ public class AdminController {
 
     /**
      * GET /admin/stats
-     * Lấy thống kê tổng quan: users, courses, enrollments.
+     * Get dashboard summary statistics: users, courses, and enrollments.
      */
     @GetMapping("/stats")
     public APIResponse<AdminStatsResponse> getDashboardStats() {

@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 /**
- * Annotation để inject current authenticated user vào controller/service
+ * Annotation to inject the current authenticated user into controller/service
  * methods
  * Usage: public void someMethod(@CurrentUser
  * CustomUserDetailsService.CustomUserDetails user)

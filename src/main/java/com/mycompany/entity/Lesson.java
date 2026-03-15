@@ -36,8 +36,7 @@ public class Lesson extends BaseEntity {
     private Long lessonRequireId;
 
     /**
-     * Tracking tiến độ học của user với lesson này
-     * Thay thế @ManyToMany users để tránh N+1 query
+     * Tracks user progress for this lesson.
      */
     @OneToMany(mappedBy = "lesson", cascade = {
             CascadeType.PERSIST, CascadeType.MERGE

@@ -1,26 +1,30 @@
 package com.mycompany.service;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.stereotype.Service;
-import com.mycompany.util.RedisUtil;
-import lombok.extern.slf4j.Slf4j;
-
 import java.util.concurrent.TimeUnit;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import com.mycompany.util.RedisUtil;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 /**
- * Token Redis Service - Quản lý Access Token & Refresh Token trong Redis
+ * Token Redis Service - Manages Access Tokens and Refresh Tokens in Redis
  * 
- * Refresh Token: 7-30 days, lưu server-side để có thể revoke
- * Access Token: 15-30 minutes, lưu ở client (FE), không cần lưu server
+ * Refresh Token: 7-30 days, stored server-side so it can be revoked
+ * Access Token: 15-30 minutes, typically stored on the client (FE), server-side
+ * storage is optional
  * (optional)
  */
 @Slf4j
 @Service
-public class TokenRedisService {
+@RequiredArgsConstructor
+public class TokenRedisService
+        implements RefreshTokenStore, AccessTokenStore, UserSessionQueryService, TokenBlacklistService {
 
-    @Autowired
-    private RedisUtil redisUtil;
+    private final RedisUtil redisUtil;
 
     @Value("${token.access-token-expiration:1800}")
     private long accessTokenExpiration; // in seconds (15-30 minutes)
@@ -35,7 +39,7 @@ public class TokenRedisService {
     // ==================== REFRESH TOKEN OPERATIONS ====================
 
     /**
-     * Lưu refresh token vào Redis (kèm userId)
+     * Store refresh token in Redis (with userId)
      * 
      * @param username     username/email
      * @param userId       user ID
@@ -44,10 +48,10 @@ public class TokenRedisService {
     public void saveRefreshToken(String username, Long userId, String refreshToken) {
         String key = REFRESH_TOKEN_PREFIX + username;
         try {
-            // Lưu refresh token với TTL
+            // Store refresh token with TTL
             redisUtil.set(key, refreshToken, refreshTokenExpiration, TimeUnit.SECONDS);
 
-            // Lưu kèm userId để track
+            // Store userId for tracking
             String userKey = USER_SESSION_PREFIX + username;
             redisUtil.hset(userKey, "userId", String.valueOf(userId));
             redisUtil.hset(userKey, "refreshToken", refreshToken);
@@ -62,10 +66,10 @@ public class TokenRedisService {
     }
 
     /**
-     * Lấy refresh token từ Redis
+     * Get refresh token from Redis
      * 
      * @param username username/email
-     * @return refresh token hoặc null
+     * @return refresh token or null
      */
     public String getRefreshToken(String username) {
         String key = REFRESH_TOKEN_PREFIX + username;
@@ -85,7 +89,7 @@ public class TokenRedisService {
      * Validate refresh token (check expire)
      * 
      * @param username username/email
-     * @return true nếu token còn hạn
+     * @return true if token is still valid
      */
     public boolean validateRefreshToken(String username) {
         String key = REFRESH_TOKEN_PREFIX + username;
@@ -98,7 +102,7 @@ public class TokenRedisService {
     }
 
     /**
-     * Xóa refresh token (logout)
+     * Delete refresh token (logout)
      * 
      * @param username username/email
      */
@@ -115,10 +119,10 @@ public class TokenRedisService {
     }
 
     /**
-     * Lấy TTL của refresh token (còn bao lâu hết hạn)
+     * Get refresh token TTL (remaining lifetime)
      * 
      * @param username username/email
-     * @return số giây còn lại
+     * @return remaining seconds
      */
     public long getRefreshTokenExpire(String username) {
         String key = REFRESH_TOKEN_PREFIX + username;
@@ -130,12 +134,12 @@ public class TokenRedisService {
         }
     }
 
-    // ==================== ACCESS TOKEN OPERATIONS (Optional - lưu ở client)
+    // ==================== ACCESS TOKEN OPERATIONS (Optional - stored on client)
     // ====================
 
     /**
-     * Lưu access token vào Redis (optional - cho việc tracking)
-     * Thường FE sẽ lưu access token, server không cần lưu
+     * Store access token in Redis (optional - for tracking)
+     * Typically FE stores access tokens, server-side storage is not required
      * 
      * @param username    username/email
      * @param userId      user ID
@@ -152,10 +156,10 @@ public class TokenRedisService {
     }
 
     /**
-     * Lấy access token từ Redis
+     * Get access token from Redis
      * 
      * @param username username/email
-     * @return access token hoặc null
+     * @return access token or null
      */
     public String getAccessToken(String username) {
         String key = ACCESS_TOKEN_PREFIX + username;
@@ -168,7 +172,7 @@ public class TokenRedisService {
     }
 
     /**
-     * Xóa access token
+     * Delete access token
      * 
      * @param username username/email
      */
@@ -185,10 +189,10 @@ public class TokenRedisService {
     // ==================== USER SESSION OPERATIONS ====================
 
     /**
-     * Lấy userId từ user session
+     * Get userId from user session
      * 
      * @param username username/email
-     * @return userId hoặc null
+     * @return userId or null
      */
     public Long getUserId(String username) {
         String userKey = USER_SESSION_PREFIX + username;
@@ -204,7 +208,7 @@ public class TokenRedisService {
     }
 
     /**
-     * Lấy thông tin user session
+     * Get user session information
      * 
      * @param username username/email
      * @return userId
@@ -229,7 +233,7 @@ public class TokenRedisService {
     }
 
     /**
-     * Xóa toàn bộ user session
+     * Delete entire user session
      * 
      * @param username username/email
      */
@@ -248,8 +252,8 @@ public class TokenRedisService {
     private static final String BLACKLIST_PREFIX = "token_blacklist:";
 
     /**
-     * Thêm token vào blacklist (revoke token)
-     * Dùng khi user logout hoặc change password
+     * Add token to blacklist (revoke token)
+     * Used when user logs out or changes password
      * 
      * @param token      token value
      * @param expiryTime token expiration time (ms)
@@ -270,10 +274,10 @@ public class TokenRedisService {
     }
 
     /**
-     * Kiểm tra token có trong blacklist không
+     * Check whether token is in blacklist
      * 
      * @param token token value
-     * @return true nếu token bị revoke
+     * @return true if token is revoked
      */
     public boolean isTokenBlacklisted(String token) {
         String key = BLACKLIST_PREFIX + token;
@@ -286,7 +290,7 @@ public class TokenRedisService {
     }
 
     /**
-     * Xóa token khỏi blacklist
+     * Remove token from blacklist
      * 
      * @param token token value
      */

@@ -27,7 +27,7 @@ public interface LessonRepository extends JpaRepository<Lesson, Long> {
     List<Lesson> findByCourse(Course course);
 
     /**
-     * Tìm tất cả lesson có lessonRequire = lesson này
+     * Find all lessons whose prerequisite is this lesson
      */
     @Query("SELECT l FROM Lesson l WHERE l.lessonRequireId = :lessonRequireId")
     List<Lesson> findByLessonRequire(@Param("lessonRequireId") Long lessonRequireId);

@@ -12,7 +12,7 @@ import org.springframework.security.web.authentication.AuthenticationSuccessHand
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mycompany.service.TokenRedisService;
+import com.mycompany.service.RefreshTokenStore;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -28,14 +28,14 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
     private final OAuth2AuthorizedClientService authorizedClientService;
     private final JwtUtils jwtUtils;
     private final ObjectMapper objectMapper;
-    private final TokenRedisService tokenRedisService;
+    private final RefreshTokenStore refreshTokenStore;
 
     public OAuth2LoginSuccessHandler(OAuth2AuthorizedClientService authorizedClientService, JwtUtils jwtUtils,
-            TokenRedisService tokenRedisService) {
+            RefreshTokenStore refreshTokenStore) {
         this.authorizedClientService = authorizedClientService;
         this.jwtUtils = jwtUtils;
         this.objectMapper = new ObjectMapper();
-        this.tokenRedisService = tokenRedisService;
+        this.refreshTokenStore = refreshTokenStore;
     }
 
     @Override
@@ -68,8 +68,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                 userId = ((com.mycompany.security.CustomUserDetailsService.CustomUserDetails) userDetails).getUserId();
             }
 
-            // Lưu refresh token vào Redis (server-side) - không gửi cho client
-            tokenRedisService.saveRefreshToken(userDetails.getUsername(), userId, refreshToken);
+            // Store refresh token in Redis (server-side) - do not send to client
+            refreshTokenStore.saveRefreshToken(userDetails.getUsername(), userId, refreshToken);
             log.debug("Refresh token saved to Redis for user: {} (userId: {})", userDetails.getUsername(), userId);
 
             // Use ObjectMapper for safe JSON serialization

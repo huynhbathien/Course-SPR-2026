@@ -14,35 +14,35 @@ import com.mycompany.entity.UserLesson;
 public interface UserLessonRepository extends JpaRepository<UserLesson, Long> {
 
     /**
-     * Tìm UserLesson theo user và lesson
+     * Find UserLesson by user and lesson
      */
     Optional<UserLesson> findByUserAndLesson(UserEntity user, Lesson lesson);
 
     /**
-     * Lấy danh sách lesson completed của user
+     * Get completed lessons of a user
      * Spring Data JPA convention: field "isCompleted" → Method "CompletedTrue"
      */
     List<UserLesson> findByUserAndCompletedTrue(UserEntity user);
 
     /**
-     * Lấy danh sách lesson active của user
+     * Get active lessons of a user
      * Spring Data JPA convention: field "isActive" → Method "ActiveTrue"
      */
     List<UserLesson> findByUserAndActiveTrue(UserEntity user);
 
     /**
-     * Lấy tất cả lesson của user
+     * Get all lessons of a user
      */
     List<UserLesson> findByUser(UserEntity user);
 
     /**
-     * Lấy tất cả lesson của user trong 1 course
+     * Get all lessons of a user in one course
      */
     List<UserLesson> findByUserAndLessonCourse(UserEntity user,
             com.mycompany.entity.Course course);
 
     /**
-     * Kiểm tra user đã complete lesson chưa
+     * Check whether user has completed the lesson
      * Spring Data JPA convention: field "isCompleted" → Method "CompletedTrue"
      */
     boolean existsByUserAndLessonAndCompletedTrue(UserEntity user, Lesson lesson);

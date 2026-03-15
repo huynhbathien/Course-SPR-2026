@@ -12,7 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * Generic Redis Utility for common Redis operations
- * Hỗ trợ các thao tác: set, get, delete, exists, increment, etc.
+ * Supports operations such as set, get, delete, exists, increment, etc.
  */
 @Slf4j
 @Component
@@ -22,12 +22,12 @@ public class RedisUtil {
     private RedisTemplate<String, String> redisTemplate;
 
     /**
-     * Lưu dữ liệu vào Redis với TTL (Time To Live)
+     * Store data in Redis with TTL (Time To Live)
      * 
      * @param key     Redis key
-     * @param value   giá trị
-     * @param timeout TTL (thời gian sống)
-     * @param unit    đơn vị thời gian (SECONDS, MINUTES, HOURS, DAYS)
+     * @param value   value
+     * @param timeout TTL (lifetime)
+     * @param unit    time unit (SECONDS, MINUTES, HOURS, DAYS)
      */
     public void set(String key, String value, long timeout, TimeUnit unit) {
         try {
@@ -40,10 +40,10 @@ public class RedisUtil {
     }
 
     /**
-     * Lưu dữ liệu vào Redis mà không có TTL
+     * Store data in Redis without TTL
      * 
      * @param key   Redis key
-     * @param value giá trị
+     * @param value value
      */
     public void set(String key, String value) {
         try {
@@ -56,10 +56,10 @@ public class RedisUtil {
     }
 
     /**
-     * Lấy dữ liệu từ Redis
+     * Get data from Redis
      * 
      * @param key Redis key
-     * @return giá trị hoặc null nếu không tồn tại
+     * @return value or null if not found
      */
     public String get(String key) {
         try {
@@ -75,10 +75,10 @@ public class RedisUtil {
     }
 
     /**
-     * Xóa dữ liệu khỏi Redis
+     * Delete data from Redis
      * 
      * @param key Redis key
-     * @return true nếu xóa thành công, false nếu key không tồn tại
+     * @return true if deleted successfully, false if key does not exist
      */
     public boolean delete(String key) {
         try {
@@ -95,10 +95,10 @@ public class RedisUtil {
     }
 
     /**
-     * Xóa nhiều key
+     * Delete multiple keys
      * 
-     * @param keys danh sách Redis keys
-     * @return số lượng keys đã xóa
+     * @param keys list of Redis keys
+     * @return number of deleted keys
      */
     public long delete(String... keys) {
         try {
@@ -114,10 +114,10 @@ public class RedisUtil {
     }
 
     /**
-     * Kiểm tra key có tồn tại không
+     * Check whether a key exists
      * 
      * @param key Redis key
-     * @return true nếu tồn tại
+     * @return true if exists
      */
     public boolean exists(String key) {
         try {
@@ -130,10 +130,10 @@ public class RedisUtil {
     }
 
     /**
-     * Lấy TTL của một key (theo giây)
+     * Get TTL of a key (in seconds)
      * 
      * @param key Redis key
-     * @return số giây còn lại, -1 nếu key không có TTL, -2 nếu key không tồn tại
+     * @return remaining seconds, -1 if key has no TTL, -2 if key does not exist
      */
     public long getExpire(String key) {
         try {
@@ -146,12 +146,12 @@ public class RedisUtil {
     }
 
     /**
-     * Thiết lập TTL cho một key
+     * Set TTL for a key
      * 
      * @param key     Redis key
-     * @param timeout TTL (thời gian sống)
-     * @param unit    đơn vị thời gian
-     * @return true nếu thiết lập thành công
+     * @param timeout TTL (lifetime)
+     * @param unit    time unit
+     * @return true if set successfully
      */
     public boolean expire(String key, long timeout, TimeUnit unit) {
         try {
@@ -168,10 +168,10 @@ public class RedisUtil {
     }
 
     /**
-     * Increment giá trị của một key (dùng cho counters)
+     * Increment value of a key (for counters)
      * 
      * @param key Redis key
-     * @return giá trị sau khi increment
+     * @return value after increment
      */
     public long increment(String key) {
         try {
@@ -185,11 +185,11 @@ public class RedisUtil {
     }
 
     /**
-     * Increment giá trị của một key với lượng tăng cụ thể
+     * Increment value of a key by a specific delta
      * 
      * @param key   Redis key
-     * @param delta lượng tăng
-     * @return giá trị sau khi increment
+     * @param delta increment delta
+     * @return value after increment
      */
     public long increment(String key, long delta) {
         try {
@@ -203,10 +203,10 @@ public class RedisUtil {
     }
 
     /**
-     * Decrement giá trị của một key
+     * Decrement value of a key
      * 
      * @param key Redis key
-     * @return giá trị sau khi decrement
+     * @return value after decrement
      */
     public long decrement(String key) {
         try {
@@ -220,11 +220,11 @@ public class RedisUtil {
     }
 
     /**
-     * Lưu Hash vào Redis
+     * Store hash field in Redis
      * 
      * @param key     Redis key
      * @param hashKey hash field name
-     * @param value   giá trị
+     * @param value   value
      */
     public void hset(String key, String hashKey, String value) {
         try {
@@ -237,11 +237,11 @@ public class RedisUtil {
     }
 
     /**
-     * Lấy Hash từ Redis
+     * Get hash field from Redis
      * 
      * @param key     Redis key
      * @param hashKey hash field name
-     * @return giá trị
+     * @return value
      */
     public Object hget(String key, String hashKey) {
         try {
@@ -253,7 +253,7 @@ public class RedisUtil {
     }
 
     /**
-     * Xóa Hash field từ Redis
+     * Delete hash field from Redis
      * 
      * @param key     Redis key
      * @param hashKey hash field name
@@ -268,7 +268,7 @@ public class RedisUtil {
     }
 
     /**
-     * Xóa toàn bộ Redis data (CAUTION!)
+     * Flush all Redis data (CAUTION!)
      */
     public void flushDb() {
         try {
