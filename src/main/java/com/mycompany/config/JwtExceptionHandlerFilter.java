@@ -32,11 +32,30 @@ public class JwtExceptionHandlerFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         try {
             filterChain.doFilter(request, response);
-        } catch (Exception ex) {
+        } catch (TokenExpiredException | TokenRevokedException ex) {
             SecurityContextHolder.clearContext();
             log.error("JWT Exception: {}", ex.getMessage());
             handleJwtException(response, ex);
+        } catch (RuntimeException ex) {
+            // Keep this filter focused on JWT concerns only.
+            if (isJwtRelated(ex)) {
+                SecurityContextHolder.clearContext();
+                log.error("JWT Exception: {}", ex.getMessage());
+                handleJwtException(response, ex);
+                return;
+            }
+            throw ex;
         }
+    }
+
+    private boolean isJwtRelated(Exception ex) {
+        String message = ex.getMessage();
+        if (message == null) {
+            return false;
+        }
+        String normalized = message.toLowerCase();
+        return normalized.contains("token") || normalized.contains("jwt")
+                || normalized.contains("expired") || normalized.contains("revoked");
     }
 
     private void handleJwtException(HttpServletResponse response, Exception ex) throws IOException {
