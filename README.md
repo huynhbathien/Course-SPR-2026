@@ -76,7 +76,8 @@ src/main/java/com/mycompany/
 ├── repository/      # CourseRepository, LessonRepository, UserRepository…
 ├── security/        # JwtUtils, JwtAuthenticationFilter, OAuth2LoginSuccessHandler, RateLimitFilter…
 ├── service/
-│   └── Impl/        # AuthServiceImpl, CourseServiceImpl, LessonServiceImpl, AdminServiceImpl…
+│   ├── email/       # OtpEmailTemplateStrategy, VerifyEmailTemplateStrategy, ResetPasswordEmailTemplateStrategy
+│   └── Impl/        # AuthServiceImpl, CourseServiceImpl, LessonServiceImpl, EmailServiceImpl, SmtpEmailSenderServiceImpl…
 └── util/            # QueryUtils, RequestUtils…
 ```
 
@@ -262,6 +263,27 @@ mvn test
 - `EmailServiceImplTest`
 - `OtpServiceImplTest`
 
+### Chạy riêng test email
+
+Unit test (mock sender):
+
+```bash
+mvn -q -Dtest=EmailServiceImplTest test
+```
+
+Live send test (gửi mail thật):
+
+```bash
+mvn -q -Dtest=EmailServiceLiveSendTest test
+```
+
+Ghi chú live test:
+
+- Test sẽ ưu tiên đọc `MAIL_*` từ biến môi trường hệ điều hành
+- Nếu không có, test sẽ fallback đọc từ file `.env` ở root project
+- Cần có tối thiểu `MAIL_USERNAME` và `MAIL_PASSWORD`
+- Target hiện tại: `huynhbathien123456@gmail.com`
+
 ---
 
 ## Branch Strategy
@@ -272,3 +294,9 @@ mvn test
 | `develop`  | Integration branch, base để merge tất cả feature branches    |
 | `feat/*`   | Feature branches                                             |
 | `hotfix/*` | Hotfix branches                                              |
+
+---
+
+## Architecture Refactor Plan
+
+- Xem roadmap SOLID chi tiet tai [docs/SOLID-ROADMAP.md](docs/SOLID-ROADMAP.md)
