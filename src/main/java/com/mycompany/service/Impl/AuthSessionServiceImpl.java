@@ -5,6 +5,7 @@ import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.mycompany.dto.request.LoginRequestDTO;
@@ -26,6 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Slf4j
 @Service
 @RequiredArgsConstructor
+@Validated
 public class AuthSessionServiceImpl implements AuthSessionService {
 
     private final UserRepository userRepository;
