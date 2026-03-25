@@ -8,10 +8,13 @@ import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
 import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.OAuth2User;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mycompany.security.CustomUserDetailsService.CustomUserDetails;
 import com.mycompany.service.RefreshTokenStore;
 
 import jakarta.servlet.ServletException;
@@ -56,6 +59,15 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
                     username);
 
             UserDetails userDetails = jwtUtils.processOAuth2User(registrationId, oAuth2User, authorizedClient);
+
+            // Replace OAuth2 principal with internal principal for downstream
+            // SecurityContext access.
+            Authentication internalAuthentication = new UsernamePasswordAuthenticationToken(
+                    userDetails,
+                    null,
+                    userDetails.getAuthorities());
+            SecurityContextHolder.getContext().setAuthentication(internalAuthentication);
+
             String jwt = jwtUtils.generateToken(userDetails.getUsername());
             String refreshToken = jwtUtils.generateRefreshToken(userDetails.getUsername());
 
@@ -64,8 +76,8 @@ public class OAuth2LoginSuccessHandler implements AuthenticationSuccessHandler {
 
             // Get userId from userDetails
             Long userId = null;
-            if (userDetails instanceof com.mycompany.security.CustomUserDetailsService.CustomUserDetails) {
-                userId = ((com.mycompany.security.CustomUserDetailsService.CustomUserDetails) userDetails).getUserId();
+            if (userDetails instanceof CustomUserDetails) {
+                userId = ((CustomUserDetails) userDetails).getUserId();
             }
 
             // Store refresh token in Redis (server-side) - do not send to client
