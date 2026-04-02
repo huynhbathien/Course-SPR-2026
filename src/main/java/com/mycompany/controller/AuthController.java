@@ -54,7 +54,7 @@ public class AuthController {
         Map<String, String> data = authService.login(dto, clientIp);
         setRefreshTokenCookie(response, data.get(REFRESH_TOKEN_COOKIE));
         return APIResponse.success(EnumSuccess.LOGIN_SUCCESS.getCode(),
-                EnumSuccess.LOGIN_SUCCESS.getMessage(), data);
+                EnumSuccess.LOGIN_SUCCESS.getMessage(), buildAccessTokenResponse(data));
     }
 
     @PostMapping("/register")
@@ -70,7 +70,7 @@ public class AuthController {
         Map<String, String> data = authService.verifyEmailAndLogin(dto);
         setRefreshTokenCookie(response, data.get(REFRESH_TOKEN_COOKIE));
         return APIResponse.success(EnumSuccess.EMAIL_VERIFIED.getCode(),
-                EnumSuccess.EMAIL_VERIFIED.getMessage(), data);
+                EnumSuccess.EMAIL_VERIFIED.getMessage(), buildAccessTokenResponse(data));
     }
 
     @PostMapping("/resend-otp")
@@ -107,11 +107,11 @@ public class AuthController {
         Map<String, String> data = authService.refreshToken(refreshToken);
         setRefreshTokenCookie(response, data.get(REFRESH_TOKEN_COOKIE));
         return APIResponse.success(EnumSuccess.LOGIN_SUCCESS.getCode(),
-                EnumSuccess.LOGIN_SUCCESS.getMessage(), data);
+                EnumSuccess.LOGIN_SUCCESS.getMessage(), buildAccessTokenResponse(data));
     }
 
     @PostMapping("/logout")
-    public APIResponse<Object> logout(HttpServletResponse response) {
+    public APIResponse<Object> logout(HttpServletRequest request, HttpServletResponse response) {
         String username = resolveAuthenticatedUsername();
         authService.logout(username);
         RequestUtils.addHttpOnlyCookie(response, REFRESH_TOKEN_COOKIE, "", 0, REFRESH_TOKEN_PATH);
@@ -132,5 +132,9 @@ public class AuthController {
     private void setRefreshTokenCookie(HttpServletResponse response, String token) {
         RequestUtils.addHttpOnlyCookie(response, REFRESH_TOKEN_COOKIE, token,
                 (int) refreshTokenExpirationSeconds, REFRESH_TOKEN_PATH);
+    }
+
+    private Map<String, String> buildAccessTokenResponse(Map<String, String> tokenPair) {
+        return Map.of("token", tokenPair.get("token"));
     }
 }
